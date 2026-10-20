@@ -21,3 +21,36 @@ export const themes: { name: ThemeName; colors: string; description: string }[] 
 ]
 export const defaultScenes: SceneId[] = ['heart','intro','cake','balloons','letter','memories','finale']
 export const sceneLabels: Record<SceneId, string> = { heart: 'Floating heart', intro: 'Magical intro', cake: 'Birthday cake', balloons: 'Pop the balloons', letter: 'Personal letter', memories: 'Photo memories', finale: 'Grand finale' }
+
+
+export const messageTemplates = [
+  { category: 'Birthday', title: 'Warm birthday wish', text: 'Happy birthday, {name}! I hope this new chapter brings you peace, big laughter, little adventures, and all the love you give so freely to everyone around you. You deserve beautiful things, today and always.' },
+  { category: 'Funny', title: 'Funny & chaotic', text: 'Happy birthday, {name}! You are officially older, not necessarily wiser, and still my favourite kind of chaos. May your cake be huge, your responsibilities be tiny, and your photos look good from every angle.' },
+  { category: 'Emotional', title: 'From the heart', text: 'Dear {name}, some people make life feel softer simply by being in it. You have been that kind of person for me. Thank you for the little things, the honest moments, and the memories I will always carry. I hope you feel as loved as you make others feel.' },
+  { category: 'Best friend', title: 'Best-friend energy', text: 'To my favourite human, {name}: thank you for every laugh that turned into tears, every random plan, every late conversation, and every time you just understood. Life is better with you in it. More memories, more madness, always.' },
+  { category: 'Romantic', title: 'Soft romantic note', text: 'My {name}, if I could give you one thing, it would be the chance to see yourself through my eyes. You would understand why the smallest moments with you mean so much, and why choosing you feels like the easiest thing in the world.' },
+  { category: 'Short caption', title: 'Short & sweet', text: 'You make ordinary days feel a little magical, {name}. This little universe is just a reminder that you matter. Always. ♡' },
+] as const
+
+// Add your licensed/owned media to public/media and update these paths.
+export const musicLibrary = [
+  { id: 'soft-piano', title: 'Soft Piano Wishes', mood: 'Gentle · piano', url: '/media/music/soft-piano-wishes.mp3' },
+  { id: 'dreamy-love', title: 'Dreamy Love', mood: 'Romantic · ambient', url: '/media/music/dreamy-love.mp3' },
+  { id: 'birthday-sparkle', title: 'Birthday Sparkle', mood: 'Joyful · celebration', url: '/media/music/birthday-sparkle.mp3' },
+  { id: 'cosmic-drift', title: 'Cosmic Drift', mood: 'Dreamy · synth', url: '/media/music/cosmic-drift.mp3' },
+] as const
+
+export const cakeStyles = [
+  { id: 'strawberry', title: 'Strawberry blush', emoji: '🍓' }, { id: 'chocolate', title: 'Chocolate dream', emoji: '🍫' },
+  { id: 'vanilla-gold', title: 'Vanilla gold', emoji: '✨' }, { id: 'red-velvet', title: 'Red velvet', emoji: '❤️' },
+  { id: 'heart-cake', title: 'Heart-shaped', emoji: '💗' }, { id: 'tiered', title: 'Three-tier magic', emoji: '🎂' },
+] as const
+export const bouquetStyles = [
+  { id: 'roses', title: 'Classic roses', emoji: '🌹' }, { id: 'tulips', title: 'Spring tulips', emoji: '🌷' },
+  { id: 'mixed', title: 'Wildflower mix', emoji: '💐' }, { id: 'heart', title: 'Heart bouquet', emoji: '💝' },
+] as const
+export const birthdayVideos = [
+  { id: 'cat-party', title: 'Cat party wishes', mood: 'Playful', url: '/media/birthday-videos/cat-party.mp4' },
+  { id: 'sleepy-kitty', title: 'Sleepy kitty surprise', mood: 'Cute', url: '/media/birthday-videos/sleepy-kitty.mp4' },
+  { id: 'birthday-meow', title: 'Birthday meow', mood: 'Silly', url: '/media/birthday-videos/birthday-meow.mp4' },
+] as const
