@@ -99,3 +99,44 @@
 @media(max-width:600px){.cat-video-card{aspect-ratio:19/8;min-height:120px;border-radius:13px}.video-balloon:after{height:18px}.envelope{height:122px}.envelope-letter{height:100px}.auth-nav-btn{padding:0 9px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.envelope-flap,.envelope-letter,.video-balloon{animation:none!important}.cat-video-card{transform:none!important}}
 .video-card-lifting .video-balloon{animation:balloonsLift .9s ease-in forwards}@keyframes balloonsLift{to{transform:translateY(-120px);opacity:0}}
+
+/* Interaction pass: bow tension, arrow flight, tactile envelope and portrait video. */
+.arrow-drag-zone{height:142px;max-width:410px;padding-top:0;margin-top:22px;touch-action:none;user-select:none;-webkit-user-select:none}
+.bow-illustration{left:2%;top:0;width:68px;height:108px;z-index:2}
+.bow-track{position:absolute;left:13%;right:5%;top:49px;height:3px;background:linear-gradient(90deg,#8b557b66,#f5d1e5,#fff7fc,#8b557b66);border-radius:9px;box-shadow:0 0 18px #f1acd966}
+.bow-track:before{content:"";position:absolute;left:0;top:-45px;height:92px;border-left:1px solid #f9ddec88}
+.bow-arrow-line{position:absolute;left:0;right:0;top:0;height:100%;background:linear-gradient(90deg,transparent,#fff,#e9a5cd);opacity:.85}
+.bow-drag-handle{position:absolute;top:24px;width:96px;height:52px;display:grid;place-items:center;padding:4px;border:1px solid #f5c6df88;border-radius:14px;background:linear-gradient(145deg,#70415fef,#2b1833f5);box-shadow:0 0 0 2px #f4b9da22,0 0 24px #e9a6d566;cursor:grab;touch-action:none;z-index:5;transition:box-shadow .15s}
+.bow-drag-handle:active{cursor:grabbing;box-shadow:0 0 0 3px #f4b9da55,0 0 34px #e9a6d5aa}
+.bow-drag-handle svg{width:88px;height:38px;overflow:visible}
+.draw-strength{position:absolute;left:16%;right:7%;top:91px;height:3px;border-radius:8px;background:#ffffff1c;overflow:hidden}
+.draw-strength span{display:block;height:100%;background:linear-gradient(90deg,#c46fa5,#ffe5f3);box-shadow:0 0 10px #f4b9da;transition:width .06s linear}
+.arrow-flight{position:absolute;left:43%;top:42px;width:100px;height:16px;z-index:9;pointer-events:none;filter:drop-shadow(0 0 8px #ffb6da)}
+.arrow-flight span{position:absolute;left:0;right:10px;top:7px;height:2px;background:linear-gradient(90deg,#ffe7f3,#fff)}
+.arrow-flight i{position:absolute;right:2px;top:2px;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:13px solid #fff0f8}
+.arrow-has-fired .bow-track{opacity:.4}
+.drag-hints{margin-top:15px;gap:12px;letter-spacing:.12em}
+.drag-hints span{font-size:9px}
+.scene-letter .letter-card{position:relative;z-index:3;transform-origin:50% 100%;margin:0 auto 20px}
+.envelope-stage{width:100%;display:grid;justify-items:center;gap:12px;min-height:55vh;align-content:center}
+.envelope-stage>.eyebrow{text-align:center}
+.envelope-wrap{width:100%;min-height:210px;display:grid;place-items:center;perspective:1000px;margin:10px auto 16px}
+.envelope{width:min(340px,82vw);height:190px;border-radius:9px;overflow:visible}
+.envelope-pocket{clip-path:polygon(0 0,50% 62%,100% 0,100% 100%,0 100%)}
+.envelope-letter{bottom:12px;left:9%;right:9%;height:150px;transform:translateY(0);opacity:0;animation:none;z-index:2}
+.envelope-is-open .envelope-letter{animation:letterSlideOut .8s .12s cubic-bezier(.16,.8,.25,1) both;opacity:1}
+.envelope-flap{position:absolute;inset:0 0 auto;width:100%;height:100%;padding:0;border:0;border-radius:8px 8px 0 0;cursor:grab;transform-origin:50% 0;clip-path:polygon(0 0,100% 0,50% 62%);background:linear-gradient(135deg,#ffe8f2,#e8b4d0);z-index:5;display:grid;place-items:center;touch-action:none;color:#965b7c;font-size:10px;letter-spacing:.18em}
+.envelope-flap span{position:absolute;top:36%;background:#fff9;padding:7px 12px;border-radius:99px}
+.envelope-is-open .envelope-flap{transform:rotateX(180deg);backface-visibility:visible;transition:transform .75s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+.envelope-is-open .envelope-pocket{z-index:4}
+.pull-letter-btn{margin:4px auto;touch-action:pan-y}
+.letter-interaction .letter-card{max-width:680px;width:100%;min-height:310px}
+.cat-video-card{width:min(420px,78vw);aspect-ratio:9/16;min-height:0;height:auto;margin:20px auto;overflow:visible}
+.cat-video-card video{width:100%;height:100%;aspect-ratio:9/16;object-fit:cover;border-radius:12px}
+.cat-video-scene{padding-bottom:22px}
+.cat-video-scene .muted{max-width:360px}
+@media(max-width:600px){.cat-video-card{width:min(72vw,360px);aspect-ratio:9/16;min-height:0}.cat-video-card video{height:100%;max-height:none;aspect-ratio:9/16}.envelope{height:165px}.envelope-wrap{min-height:185px}.envelope-letter{height:125px}.arrow-drag-zone{max-width:360px}.bow-drag-handle{width:82px;height:48px}.bow-drag-handle svg{width:74px}.draw-strength{top:86px}}
+@media(prefers-reduced-motion:reduce){.arrow-flight,.envelope-is-open .envelope-flap,.envelope-is-open .envelope-letter{animation:none!important;transition:none!important}}
+/* Keep the letter inside the envelope until the recipient explicitly pulls it out. */
+.envelope-letter{opacity:1;animation:none;transform:translateY(0)}
+.envelope-is-open .envelope-letter{animation:none;opacity:1;transform:translateY(0)}
