@@ -33,12 +33,9 @@ export const messageTemplates = [
 ] as const
 
 // Add your licensed/owned media to public/media and update these paths.
-export const musicLibrary = [
-  { id: 'soft-piano', title: 'Soft Piano Wishes', mood: 'Gentle · piano', url: '/media/music/soft-piano-wishes.mp3' },
-  { id: 'dreamy-love', title: 'Dreamy Love', mood: 'Romantic · ambient', url: '/media/music/dreamy-love.mp3' },
-  { id: 'birthday-sparkle', title: 'Birthday Sparkle', mood: 'Joyful · celebration', url: '/media/music/birthday-sparkle.mp3' },
-  { id: 'cosmic-drift', title: 'Cosmic Drift', mood: 'Dreamy · synth', url: '/media/music/cosmic-drift.mp3' },
-] as const
+// One owner-hosted soundtrack and one owner-hosted birthday video.
+export const hostedMusic = '/media/music/celebration.mp3'
+export const hostedBirthdayVideo = '/media/birthday-videos/birthday-cat.mp4'
 
 export const cakeStyles = [
   { id: 'strawberry', title: 'Strawberry blush', emoji: '🍓' }, { id: 'chocolate', title: 'Chocolate dream', emoji: '🍫' },
@@ -46,8 +43,14 @@ export const cakeStyles = [
   { id: 'heart-cake', title: 'Heart-shaped', emoji: '💗' }, { id: 'tiered', title: 'Three-tier magic', emoji: '🎂' },
 ] as const
 export const bouquetStyles = [
-  { id: 'roses', title: 'Classic roses', emoji: '🌹' }, { id: 'tulips', title: 'Spring tulips', emoji: '🌷' },
-  { id: 'mixed', title: 'Wildflower mix', emoji: '💐' }, { id: 'heart', title: 'Heart bouquet', emoji: '💝' },
+  { id: 'roses', title: 'Velvet red roses', emoji: '🌹', flowers: '🌹🌹🌹' },
+  { id: 'tulips', title: 'Spring tulip wrap', emoji: '🌷', flowers: '🌷🌷🌷' },
+  { id: 'mixed', title: 'Wildflower hand-tie', emoji: '💐', flowers: '🌼🌸🌷' },
+  { id: 'sunflowers', title: 'Sunshine bouquet', emoji: '🌻', flowers: '🌻🌻🌼' },
+  { id: 'orchids', title: 'Orchid elegance', emoji: '🪻', flowers: '🪻🌸🪻' },
+  { id: 'peonies', title: 'Pink peonies', emoji: '🌸', flowers: '🌸🌸🌸' },
+  { id: 'wildflowers', title: 'Meadow wildflowers', emoji: '💐', flowers: '🌼🪻🌸' },
+  { id: 'heart', title: 'Heart-shaped bouquet', emoji: '💝', flowers: '💗🌹💗' },
 ] as const
 export const birthdayVideos = [
   { id: 'cat-party', title: 'Cat party wishes', mood: 'Playful', url: '/media/birthday-videos/cat-party.mp4' },
