@@ -1,3 +1,4 @@
+import React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { Music2, Volume2, VolumeX, Vibrate, Sparkles, Play, Pause } from 'lucide-react'
 
