@@ -38,9 +38,14 @@ export const hostedMusic = '/media/music/celebration.mp3'
 export const hostedBirthdayVideo = '/media/birthday-videos/birthday-cat.mp4'
 
 export const cakeStyles = [
-  { id: 'strawberry', title: 'Strawberry blush', emoji: '🍓' }, { id: 'chocolate', title: 'Chocolate dream', emoji: '🍫' },
-  { id: 'vanilla-gold', title: 'Vanilla gold', emoji: '✨' }, { id: 'red-velvet', title: 'Red velvet', emoji: '❤️' },
-  { id: 'heart-cake', title: 'Heart-shaped', emoji: '💗' }, { id: 'tiered', title: 'Three-tier magic', emoji: '🎂' },
+  { id: 'strawberry', title: 'Strawberry blush', emoji: '🍓' },
+  { id: 'chocolate', title: 'Chocolate ganache', emoji: '🍫' },
+  { id: 'vanilla-gold', title: 'Vanilla gold', emoji: '✨' },
+  { id: 'red-velvet', title: 'Red velvet luxe', emoji: '❤️' },
+  { id: 'heart-cake', title: 'Heart-shaped cake', emoji: '💗' },
+  { id: 'tiered', title: 'Three-tier celebration', emoji: '🎂' },
+  { id: 'blueberry', title: 'Blueberry cloud', emoji: '🫐' },
+  { id: 'floral', title: 'Floral garden cake', emoji: '🌸' },
 ] as const
 export const bouquetStyles = [
   { id: 'roses', title: 'Velvet red roses', emoji: '🌹', flowers: '🌹🌹🌹' },
