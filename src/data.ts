@@ -19,8 +19,8 @@ export const themes: { name: ThemeName; colors: string; description: string }[] 
   { name: 'Neon Fantasy', colors: 'linear-gradient(135deg,#18122f,#ff4fc8)', description: 'Electric after-dark energy' },
   { name: 'Meow Magic', colors: 'linear-gradient(135deg,#f4a5d7,#a68bff)', description: 'A little cat-inspired charm' },
 ]
-export const defaultScenes: SceneId[] = ['heart','intro','cake','balloons','letter','memories','finale']
-export const sceneLabels: Record<SceneId, string> = { heart: 'Floating heart', intro: 'Magical intro', cake: 'Birthday cake', balloons: 'Pop the balloons', letter: 'Personal letter', memories: 'Photo memories', finale: 'Grand finale' }
+export const defaultScenes: SceneId[] = ['heart','intro','cake','balloons','letter','cat-video','memories','finale']
+export const sceneLabels: Record<SceneId, string> = { heart: 'Floating heart', intro: 'Magical intro', cake: 'Birthday cake', balloons: 'Pop the balloons', letter: 'Personal letter', 'cat-video': 'Birthday cat video', memories: 'Photo memories', finale: 'Grand finale' }
 
 
 export const messageTemplates = [
