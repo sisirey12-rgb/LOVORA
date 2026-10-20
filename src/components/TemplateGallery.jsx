@@ -1,3 +1,4 @@
+import React from 'react'
 import { motion } from 'framer-motion'
 import { Cake, Heart, Mail, Images, Gift, Users } from 'lucide-react'
 const items = [
