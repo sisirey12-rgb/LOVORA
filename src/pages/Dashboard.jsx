@@ -1,3 +1,4 @@
+import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Plus, Heart, Clock3, ExternalLink, Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
