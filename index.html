@@ -7,5 +7,42 @@
     <meta name="description" content="LOVORA by Sisirey — create unforgettable digital celebrations." />
     <title>LOVORA by Sisirey — Every feeling deserves a moment</title>
   </head>
-  <body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body>
+  <body>
+    <div id="root"></div>
+
+    <!-- Temporary diagnostics: shows browser JavaScript errors on the page. -->
+    <pre id="debug-error" style="display:none;color:#ffb4b4;background:#190d18;border:1px solid #8f334c;border-radius:12px;padding:16px;margin:16px;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 monospace"></pre>
+    <script>
+      (function () {
+        var box = document.getElementById("debug-error");
+        function show(message) {
+          box.style.display = "block";
+          box.textContent += message + "\n\n";
+        }
+        window.addEventListener("error", function (event) {
+          show(
+            "JAVASCRIPT ERROR: " + (event.message || "Unknown error") +
+            "\nFile: " + (event.filename || "unknown") +
+            "\nLine: " + (event.lineno || "?") +
+            ", Column: " + (event.colno || "?")
+          );
+        });
+        window.addEventListener("unhandledrejection", function (event) {
+          var reason = event.reason;
+          show("UNHANDLED PROMISE REJECTION: " +
+            (reason && reason.stack ? reason.stack : String(reason)));
+        });
+        window.addEventListener("load", function () {
+          window.setTimeout(function () {
+            var root = document.getElementById("root");
+            if (root && root.childElementCount === 0 && !box.textContent) {
+              show("DIAGNOSTIC: React has not rendered visible elements into #root. No browser error was caught by this temporary listener.");
+            }
+          }, 4000);
+        });
+      })();
+    </script>
+
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
