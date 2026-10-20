@@ -1,3 +1,4 @@
+import React from 'react'
 const themes = [
   ['rose','Rose Dream','#ff70b7'], ['violet','Violet Night','#b58aff'],
   ['midnight','Midnight','#76a8ff'], ['vanilla','Vanilla Blush','#ffc49b'],
