@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowDown, ArrowUpRight, AudioLines, Sparkles, WandSparkles, Heart, Play } from 'lucide-react'
