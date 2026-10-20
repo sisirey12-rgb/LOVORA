@@ -1,0 +1,47 @@
+import { useEffect, useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowLeft, ArrowRight, Heart, Volume2, VolumeX, RotateCcw, Share2, Sparkles, X } from 'lucide-react'
+import type { Experience, SceneId } from '../types'
+import { sceneLabels } from '../data'
+import Particles from './Particles'
+
+type Props = { experience: Experience; onClose: () => void }
+const order: SceneId[] = ['heart','intro','cake','balloons','letter','memories','finale']
+export default function ScenePlayer({ experience, onClose }: Props) {
+  const scenes = order.filter(s => experience.scenes.includes(s))
+  const [index, setIndex] = useState(0)
+  const [popped, setPopped] = useState<number[]>([])
+  const [wish, setWish] = useState(false)
+  const [heartOpen, setHeartOpen] = useState(false)
+  const [sound, setSound] = useState(false)
+  const [memoryIndex, setMemoryIndex] = useState(0)
+  const scene = scenes[index] || 'heart'
+  const themeClass = `theme-${experience.theme.toLowerCase().replaceAll(' ', '-')}`
+  const next = () => setIndex(i => Math.min(i + 1, scenes.length - 1))
+  const previous = () => setIndex(i => Math.max(i - 1, 0))
+  const buzz = (pattern: number | number[]) => { try { if (navigator.vibrate && localStorage.getItem('lovora-haptics') !== 'off') navigator.vibrate(pattern) } catch {} }
+  const confetti = useMemo(() => Array.from({ length: 42 }, (_, i) => i), [])
+  useEffect(() => { return () => { try { navigator.vibrate?.(0) } catch {} } }, [])
+  const share = async () => {
+    const url = window.location.href
+    try { if (navigator.share) await navigator.share({ title: experience.title, text: `A little surprise for ${experience.recipient}`, url }); else await navigator.clipboard.writeText(url) } catch {}
+  }
+  const goto = (id: SceneId) => { const i = scenes.indexOf(id); if (i >= 0) setIndex(i) }
+  return <div className={`player ${themeClass}`} role="dialog" aria-modal="true" aria-label="Interactive surprise">
+    <div className="player-top"><button className="icon-btn" onClick={onClose} aria-label="Close experience"><X/></button><div className="player-progress">{scenes.map((s,i)=><button key={s} onClick={()=>setIndex(i)} className={i===index?'active':''} aria-label={`Go to ${sceneLabels[s]}`} />)}</div><button className="icon-btn" onClick={()=>setSound(v=>!v)} aria-label={sound?'Mute sound':'Enable sound'}>{sound?<Volume2/>:<VolumeX/>}</button></div>
+    <Particles count={14}/>
+    <AnimatePresence mode="wait">
+      <motion.section key={scene} className={`scene scene-${scene}`} initial={{opacity:0,y:18,scale:.985}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:-12,scale:.99}} transition={{duration:.42}} aria-live="polite">
+        {scene === 'heart' && <div className="scene-content"><p className="eyebrow">A LITTLE SOMETHING FOR YOU</p><button className={`big-heart ${heartOpen?'heart-open':''}`} onClick={()=>{setHeartOpen(true);buzz(24);window.setTimeout(next,650)}} aria-label="Tap the heart to begin"><Heart fill="currentColor" size={76}/><span className="heart-glow"/></button><h1>Someone made this<br/><em>just for you.</em></h1><p className="muted">Tap the heart to begin</p></div>}
+        {scene === 'intro' && <div className="scene-content"><span className="scene-emoji">✦</span><p className="eyebrow">A MOMENT MADE WITH LOVE</p><h1>{experience.greeting || `Hey, ${experience.recipient || 'you'}!`}</h1><p className="scene-copy">{experience.title}</p><button className="primary-btn" onClick={next}>Open your surprise <ArrowRight size={17}/></button></div>}
+        {scene === 'cake' && <div className="scene-content"><p className="eyebrow">MAKE A WISH</p><button className={`cake-art ${wish?'wished':''}`} onClick={()=>{setWish(true);buzz([20,35,20])}} aria-label="Tap the candle to make a wish"><span className="flame">✦</span><span className="candle"></span><span className="cake-top"></span><span className="cake-layer cake-layer-one"></span><span className="cake-layer cake-layer-two"></span><span className="cake-plate"></span></button><h1>{wish ? 'Wish sent into the universe ✨' : 'A wish, just for you'}</h1><p className="muted">{wish ? 'May the sweetest things find you.' : 'Tap the candle and make a wish.'}</p>{wish && <button className="primary-btn" onClick={next}>Keep going <ArrowRight size={17}/></button>}</div>}
+        {scene === 'balloons' && <div className="scene-content wide"><p className="eyebrow">LITTLE THINGS I WANT YOU TO KNOW</p><h1>Pop a little <em>happiness.</em></h1><p className="muted">Open each balloon to find a message ({popped.length}/5)</p><div className="balloon-grid">{Array.from({length:5},(_,i)=><button key={i} className={`balloon balloon-${i+1} ${popped.includes(i)?'popped':''}`} onClick={()=>{if(!popped.includes(i)){setPopped(p=>[...p,i]);buzz(16)}}} aria-label={`Balloon ${i+1}${popped.includes(i)?' opened':' unopened'}`}>{popped.includes(i)?<span>{['You matter more than you know.','Never stop being you.','You make ordinary days magic.','You deserve every good thing.','Here is to more memories.'][i]}</span>:<><span className="balloon-shine"/><b>{i+1}</b></>}</button>)}</div>{popped.length===5 && <button className="primary-btn" onClick={next}>Read your letter <ArrowRight size={17}/></button>}</div>}
+        {scene === 'letter' && <div className="scene-content"><div className="letter-card"><span className="letter-flower">✿</span><p className="eyebrow">A LETTER FOR {experience.recipient || 'YOU'}</p><h2>{experience.greeting || `Dear ${experience.recipient || 'you'},`}</h2><p className="letter-message">{experience.message || 'Some people make the world feel a little softer just by being in it. You are one of those people. I hope this little surprise reminds you how loved and appreciated you are.'}</p><p className="letter-closing">{experience.closing || 'With love,'}<br/><strong>{experience.sender || 'Someone who cares'}</strong></p></div><button className="primary-btn" onClick={next}>See our memories <ArrowRight size={17}/></button></div>}
+        {scene === 'memories' && <div className="scene-content wide"><p className="eyebrow">OUR LITTLE TIME CAPSULE</p><h1>Little moments, <em>big feelings.</em></h1>{experience.memories.length ? <div className="memory-stage"><button className="memory-nav" onClick={()=>setMemoryIndex(i=>(i-1+experience.memories.length)%experience.memories.length)} aria-label="Previous memory"><ArrowLeft/></button><div className="memory-frame">{experience.memories[memoryIndex].kind==='video'?<video src={experience.memories[memoryIndex].src} controls playsInline preload="metadata"/>:<img src={experience.memories[memoryIndex].src} alt={experience.memories[memoryIndex].caption || 'Shared memory'}/>}<div className="memory-caption"><strong>{experience.memories[memoryIndex].caption || 'A moment to keep'}</strong>{experience.memories[memoryIndex].date && <small>{experience.memories[memoryIndex].date}</small>}</div></div><button className="memory-nav" onClick={()=>setMemoryIndex(i=>(i+1)%experience.memories.length)} aria-label="Next memory"><ArrowRight/></button></div>:<div className="empty-memory"><span>♡</span><p>Some memories are kept in the heart.</p><small>Add photos or videos in the creator to make this part yours.</small></div>}<button className="primary-btn" onClick={next}>One last thing <ArrowRight size={17}/></button></div>}
+        {scene === 'finale' && <div className="scene-content finale-content"><div className="confetti" aria-hidden="true">{confetti.map(i=><i key={i} style={{left:`${(i*29)%100}%`,animationDelay:`${(i%9)*.14}s`,transform:`rotate(${i*17}deg)`}}/>)}</div><Sparkles className="final-spark" size={38}/><p className="eyebrow">TODAY IS ABOUT YOU</p><h1>{experience.occasion === 'Birthday' ? 'HAPPY BIRTHDAY' : experience.title.toUpperCase()}</h1><h2>{experience.recipient || 'Beautiful human'} <span>♡</span></h2><p className="scene-copy">{experience.message || 'May life keep surprising you with beautiful reasons to smile.'}</p><div className="final-actions"><button className="primary-btn" onClick={()=>{setIndex(0);setPopped([]);setWish(false);setHeartOpen(false)}}><RotateCcw size={16}/> Replay</button><button className="secondary-btn" onClick={share}><Share2 size={16}/> Share</button></div></div>}
+      </motion.section>
+    </AnimatePresence>
+    <div className="player-bottom"><button className="text-btn" onClick={previous} disabled={index===0}><ArrowLeft size={16}/> Back</button><span>{index+1} / {scenes.length} · {sceneLabels[scene]}</span>{index < scenes.length-1 ? <button className="text-btn" onClick={next}>Next <ArrowRight size={16}/></button> : <button className="text-btn" onClick={onClose}>Finish <Heart size={16}/></button>}</div>
+    <button className="haptics-toggle" onClick={()=>{const off=localStorage.getItem('lovora-haptics')==='off';localStorage.setItem('lovora-haptics',off?'on':'off')}} title="Toggle optional vibration">Haptics: {localStorage.getItem('lovora-haptics')==='off'?'off':'on'}</button>
+  </div>
+}
