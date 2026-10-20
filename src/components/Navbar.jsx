@@ -1,3 +1,4 @@
+import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Heart, Menu, X } from 'lucide-react'
 import { useState } from 'react'
