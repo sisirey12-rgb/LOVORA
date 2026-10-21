@@ -36,7 +36,7 @@ export default function CatVideoScene({ palette, onDone, buzz }: { palette: stri
       <div className="cv-balloons" aria-hidden="true">
         {BALLOONS.map((b, i) => <span key={i} className="cv-balloon" style={{ left: b.x, ['--c' as string]: palette[b.c % palette.length], ['--d' as string]: `${b.d}s` } as React.CSSProperties}><svg viewBox="0 0 40 56"><path d="M20 50 C14 42 1 33 3 18 C5 6 17 4 20 14 C23 4 35 6 37 18 C39 33 26 42 20 50Z" fill="var(--c)" /><path d="M9 14 Q12 8 17 11" stroke="#fff" strokeOpacity=".7" strokeWidth="2.4" fill="none" strokeLinecap="round" /><path d="M20 50 L16 55 L24 55Z" fill="var(--c)" /></svg><i className="cv-string" /></span>)}
       </div>
-      <div className="cv-card">
+      <div className="cv-card" aria-label="Portrait cat video">
         <video ref={video} src={hostedBirthdayVideo} playsInline preload="auto" onPlay={() => audio.pauseForVideo()} onEnded={finish} onError={finish} onPause={e => { if (!e.currentTarget.ended && phase === 'play' && !finished.current) setNeedsTap(true) }} />
         {needsTap && phase === 'play' && <button className="cv-tap" onClick={() => { play() }}><Play size={22} fill="currentColor" /> Tap to play</button>}
       </div>
