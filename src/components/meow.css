@@ -1,0 +1,23 @@
+/* Lovora Meow look: midnight cat-fur + candy pink + butter yellow, rounded and playful */
+:root{--bg:#0f0a1f;--panel:#1a1230;--panel2:#241a42;--text:#fff4fb;--muted:#c3b3dc;--accent:#ff8fc2;--accent2:#ffd36e}
+:root[data-theme="light"]{--bg:#fff6ef;--panel:#fff;--panel2:#ffeaf4;--text:#3a1d3f;--muted:#8a6f93}
+body{font-family:'DM Sans',sans-serif}
+.app-shell{background:radial-gradient(circle at 15% 0%,rgba(255,143,194,.16),transparent 40%),radial-gradient(circle at 90% 20%,rgba(255,211,110,.10),transparent 38%),var(--bg)}
+.hero h1,.section-heading h2,.how-copy h2,.closing-cta h2,.editor-main h1,.brand strong{font-family:'Fredoka',sans-serif;letter-spacing:-.02em}
+.brand-mark{border-radius:50%;border:2px solid #ff8fc2;color:#ffd36e;background:linear-gradient(135deg,#3a1a55,#5b2a6e);box-shadow:0 0 18px rgba(255,143,194,.35)}
+.brand-mark:before,.brand-mark:after{content:"";position:absolute;top:-6px;width:12px;height:12px;background:#ff8fc2;clip-path:polygon(50% 0,0 100%,100% 100%)}
+.brand-mark:before{left:3px;transform:rotate(-14deg)}.brand-mark:after{right:3px;transform:rotate(14deg)}
+.brand strong i{color:#ffd36e}.brand small{color:#ff8fc2;font-weight:600;letter-spacing:.06em;font-size:10px}
+.primary-btn{background:linear-gradient(110deg,#ff8fc2,#ffd36e);color:#3a1240;box-shadow:0 8px 26px rgba(255,143,194,.3)}
+.gradient-text{background:linear-gradient(100deg,#ff8fc2 5%,#ffd36e 90%);-webkit-background-clip:text;background-clip:text;font-family:'Fredoka',sans-serif;font-style:normal;font-weight:700}
+.experience-card,.how-card,.floating-note{border-radius:26px}
+.hero-heart{color:#ff8fc2}
+.site-footer{flex-wrap:wrap;justify-content:center;text-align:center;gap:14px}
+.dev-credit{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--muted);flex-basis:100%;justify-content:center;padding-top:6px}
+.dev-credit b{color:#ffd36e;font-family:'Fredoka',sans-serif;font-size:13px}
+.dev-links{display:flex;gap:9px}
+.soc{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;position:relative;transition:transform .2s}
+.soc:hover{transform:translateY(-3px) scale(1.06)}
+.soc.ig{background:linear-gradient(45deg,#f9a03c,#e1306c,#833ab4)}.soc.tg{background:#229ed9}.soc.wa{background:#25d366}
+.wa-phone{position:absolute;color:#25d366}
+@media(max-width:700px){.dev-credit{flex-direction:column;gap:8px}}
