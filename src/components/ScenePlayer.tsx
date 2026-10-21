@@ -82,7 +82,7 @@ export default function ScenePlayer({ experience, onClose, preview = false }: Pr
 
   if (locked) return <div className={`player ${themeClass} countdown-lock`} role="dialog" aria-modal="true" aria-label="Surprise countdown"><div className="countdown-lock-card"><span className="scene-emoji">♡</span><p className="eyebrow">A LITTLE WORLD IS WAITING</p><h1>Something lovely is<br /><em>almost here.</em></h1><p>{experience.openingInstruction || 'Your surprise is waiting for the right moment.'}</p><div className="countdown-clock">{[{ label: 'DAYS', value: Math.floor(countdown / 86400000) }, { label: 'HOURS', value: Math.floor(countdown / 3600000) % 24 }, { label: 'MINUTES', value: Math.floor(countdown / 60000) % 60 }, { label: 'SECONDS', value: Math.floor(countdown / 1000) % 60 }].map(part => <div key={part.label}><strong>{String(part.value).padStart(2, '0')}</strong><small>{part.label}</small></div>)}</div><small className="countdown-note">Unlocks at midnight on {experience.targetDate} · local device time</small><button className="secondary-btn" onClick={onClose}>Back</button></div></div>
 
-  return <div className={`player ${themeClass}`} style={fontVars} role="dialog" aria-modal="true" aria-label="Interactive surprise">
+  return <div className={`player ta-host ta-${experience.textAnim || 'rise'} ${themeClass}`} style={fontVars} role="dialog" aria-modal="true" aria-label="Interactive surprise">
     <TapFX active={scene === 'finale' || scene === 'memories'} colors={palette.balloons} buzz={buzz} />
     <div className="player-top">
       <button className="icon-btn" onClick={onClose} aria-label="Close experience"><X /></button>
