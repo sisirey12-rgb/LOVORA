@@ -80,3 +80,34 @@ export function normalizeScenes(scenes: SceneId[], v?: number): SceneId[] {
   const i = scenes.indexOf('letter'); if (i < 0) return scenes
   const out = [...scenes]; out.splice(i + 1, 0, 'video'); return out
 }
+
+/** Love-letter font pairings. `display` = headings, `script` = handwritten accents, `body` = letter text. */
+export const loveFonts = [
+  { id: 'classic', title: 'Classic romance', display: "'Playfair Display', serif", script: "'Great Vibes', cursive", body: "'Playfair Display', serif" },
+  { id: 'vows', title: 'Wedding vows', display: "'Cormorant Garamond', serif", script: "'Allura', cursive", body: "'Cormorant Garamond', serif" },
+  { id: 'handwritten', title: 'Handwritten note', display: "'Dancing Script', cursive", script: "'Dancing Script', cursive", body: "'Dancing Script', cursive" },
+  { id: 'parisian', title: 'Parisian love', display: "'Parisienne', cursive", script: "'Parisienne', cursive", body: "'Cormorant Garamond', serif" },
+  { id: 'sweet', title: 'Sweet & playful', display: "'Pacifico', cursive", script: "'Satisfy', cursive", body: "'DM Sans', sans-serif" },
+  { id: 'whisper', title: 'Soft whisper', display: "'Sacramento', cursive", script: "'Sacramento', cursive", body: "'Cormorant Garamond', serif" },
+] as const
+export const fontById = (id?: string) => loveFonts.find(f => f.id === id) || loveFonts[0]
+
+/** Tap-to-fill suggestions shown under each field in the creator. {name} is replaced with the recipient. */
+export const suggestions = {
+  title: ['A birthday wish made just for you', 'Something small, from my whole heart', 'For my favourite person', 'Our little world, wrapped for you', 'Open this when you miss me'],
+  greeting: ['Happy Birthday, {name}! 🎂', 'Hey you, {name} ♡', 'Dear {name},', 'To the one who owns my heart,', 'My dearest {name},'],
+  instruction: ['Touch the heart when the countdown ends ♡', 'Pull the arrow back and let love fly', 'Come closer… your surprise is ready', 'Tap anywhere to begin the magic ✨'],
+  closing: ['With all my love,', 'Forever yours,', 'Always and then some,', 'Yours, completely,', 'Love, your favourite human'],
+  caption: ['The day I knew', 'Our favourite chaos', 'Just us ♡', 'Remember this?', 'Pure happiness'],
+  wishes: [
+    'You make ordinary days brighter.', 'I hope you never forget how loved you are.', 'May every dream you hold find its way to you.', 'Thank you for being exactly you.',
+    'Here is to more memories together.', 'May your year taste like cake and feel like home.', 'You are my favourite hello and my hardest goodbye.', 'Never stop shining — the world needs your light.',
+    'I wish you slow mornings and big laughs.', 'You deserve every good thing coming your way.', 'Every day with you is a gift.', 'May your heart stay as kind as it is today.',
+  ],
+  letter: [
+    'Some people make the world feel softer just by being in it. You are one of them.',
+    'I never say it enough, so let me say it here: thank you for being you, and for being mine.',
+    'If I could gift you one thing, it would be a way to see yourself through my eyes.',
+    'Every memory with you is my favourite one — and somehow we keep making new ones.',
+  ],
+}
