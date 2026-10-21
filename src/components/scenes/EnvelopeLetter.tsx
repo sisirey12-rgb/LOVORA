@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Heart } from 'lucide-react'
+import { sfx } from '../../lib/sfx'
 
 type Stage = 'closed' | 'flap' | 'rise' | 'read'
 type Props = { recipient: string; greeting: string; text: string; closing: string; sender: string; buzz: (p: number | number[]) => void; onDone: () => void }
@@ -24,10 +25,11 @@ export default function EnvelopeLetter({ recipient, greeting, text, closing, sen
       const nextSpace = text.indexOf(' ', cursor)
       cursor = Math.max(cursor + 1, nextSpace < 0 ? text.length : nextSpace + 1)
       setTyped(cursor)
+      buzz(14); sfx.tick()   // one soft tap on the phone for every word
       if (cursor >= text.length) window.clearInterval(t)
-    }, 120)
+    }, 230)
     return () => window.clearInterval(t)
-  }, [stage, text])
+  }, [stage, text, buzz])
   const finished = stage === 'read' && typed >= text.length
   return <div className={`env-scene stage-${stage}`}>
     {stage !== 'read' && <p className="eyebrow env-eyebrow">A LETTER FOR {recipient || 'YOU'}</p>}
