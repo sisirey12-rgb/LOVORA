@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { motion } from 'framer-motion'
 import { Flame, SkipForward } from 'lucide-react'
+import { sfx } from '../../lib/sfx'
 
 type Deco = 'berries' | 'choco' | 'gold' | 'crumb' | 'hearts' | 'pearls' | 'blueberries' | 'flowers'
 type Cfg = { sponge: [string, string]; cream: string; frost: string; frost2: string; deco: Deco; tiered?: boolean; heart?: boolean }
@@ -16,7 +17,7 @@ const STYLES: Record<string, Cfg> = {
 }
 const CAPTIONS = ['Warming up the cake machine…', 'Conveyor brings the plate…', 'Baking the first sponge…', 'Spreading cream, stacking layer two…', 'Spreading cream, stacking layer three…', 'Coating with frosting…', 'Piping the rosettes…', 'Adding the decorations…', 'Placing the candle…', 'Lighting the flame — make a wish ✨']
 const SCHEDULE = [0, 650, 1450, 2350, 3250, 4150, 5000, 6200, 7100, 7900]
-const CX = 160, PLATE_Y = 246, LAYER_H = 40, CREAM_H = 6
+const CX = 160, PLATE_Y = 246, LAYER_H = 42, CREAM_H = 6
 
 function DecoShape({ type, x, y, i }: { type: Deco; x: number; y: number; i: number }) {
   const r = 5 + (i % 3)
@@ -37,13 +38,14 @@ export default function CakeAssembly({ style = 'strawberry', wished, onWish, buz
   const uid = useId().replace(/:/g, '')
   const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const [stage, setStage] = useState(reduced ? 9 : 0)
+  const [blowing, setBlowing] = useState(false)
   const buzzRef = useRef(buzz); buzzRef.current = buzz   // keep the assembly timeline independent of parent re-renders
   useEffect(() => {
     if (reduced) return
     const t = SCHEDULE.map((ms, i) => window.setTimeout(() => { setStage(i); if (i >= 2 && i <= 5) buzzRef.current?.(10) }, ms))
     return () => t.forEach(window.clearTimeout)
   }, [reduced])
-  const widths = cfg.tiered ? [196, 154, 112] : [176, 172, 168]
+  const widths = cfg.tiered ? [222, 170, 120] : [214, 162, 112]
   const layers = useMemo(() => widths.map((w, i) => ({ w, top: PLATE_Y - (i + 1) * LAYER_H - i * CREAM_H })), [cfg.tiered]) // eslint-disable-line react-hooks/exhaustive-deps
   const topY = layers[2].top
   const rimPts = useMemo(() => Array.from({ length: 11 }, (_, i) => { const a = Math.PI * (.08 + .84 * i / 10); const rx = widths[2] / 2 - 10; return { x: CX - Math.cos(a) * rx, y: topY + 3 + Math.sin(a) * 8 } }), [topY, cfg.tiered]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -56,11 +58,14 @@ export default function CakeAssembly({ style = 'strawberry', wished, onWish, buz
   const sweepX = stage === 6 ? [-70, 70, -70, 0] : carriageX
   const ready = stage >= 9
   return <div className="cake-assembly">
-    <button type="button" className={`cake-stage-btn ${ready ? 'ready' : ''} ${wished ? 'wished' : ''}`} onClick={() => { if (ready && !wished) onWish() }} disabled={!ready || wished} aria-label={ready ? 'Tap the candle to make a wish' : 'The cake is being assembled'}>
+    <button type="button" className={`cake-stage-btn ${ready ? 'ready' : ''} ${wished ? 'wished' : ''}`} onClick={() => { if (!ready || wished || blowing) return; setBlowing(true); sfx.blow(); buzz?.([12, 40, 12, 40, 12]); window.setTimeout(() => { onWish(); sfx.wish(); buzz?.([30, 40, 60]) }, 1000) }} disabled={!ready || wished || blowing} aria-label={ready ? 'Tap the candle to make a wish' : 'The cake is being assembled'}>
       <svg viewBox="0 0 320 290" className="cake-svg" role="img" aria-label="A birthday cake being assembled by a machine">
         <defs>
           <linearGradient id={spongeGrad} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={cfg.sponge[0]} /><stop offset=".5" stopColor={cfg.sponge[1]} /><stop offset="1" stopColor={cfg.sponge[0]} /></linearGradient>
           <linearGradient id={frostGrad} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={cfg.frost2} /><stop offset=".5" stopColor={cfg.frost} /><stop offset="1" stopColor={cfg.frost2} /></linearGradient>
+          <linearGradient id={`sh-${uid}`} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#000" stopOpacity=".26" /><stop offset=".18" stopColor="#000" stopOpacity="0" /><stop offset=".34" stopColor="#fff" stopOpacity=".26" /><stop offset=".5" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity=".34" /></linearGradient>
+          <linearGradient id={`gold-${uid}`} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#b8862b" /><stop offset=".35" stopColor="#ffe9a6" /><stop offset=".6" stopColor="#e9bd5a" /><stop offset="1" stopColor="#a87722" /></linearGradient>
+          <radialGradient id={`glow-${uid}`} cx=".5" cy=".5" r=".5"><stop offset="0" stopColor="#ffd98a" stopOpacity=".55" /><stop offset="1" stopColor="#ffd98a" stopOpacity="0" /></radialGradient>
           <pattern id={`st-${uid}`} width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="8" fill="#fff" /><rect x="4" width="4" height="8" fill="#a68dff" /></pattern>
         </defs>
         {/* machine frame */}
@@ -73,15 +78,15 @@ export default function CakeAssembly({ style = 'strawberry', wished, onWish, buz
         {/* conveyor belt + plate */}
         <g><rect x="24" y="258" width="272" height="14" rx="7" className="mc-belt" /><rect x="30" y="262" width="260" height="3" rx="1.5" className={`mc-belt-lines ${stage >= 1 && stage < 3 ? 'moving' : ''}`} /><circle cx="36" cy="265" r="8" className="mc-wheel" /><circle cx="284" cy="265" r="8" className="mc-wheel" /></g>
         <motion.g initial={{ x: -230 }} animate={{ x: show(1) ? 0 : -230 }} transition={{ type: 'spring', stiffness: 60, damping: 15 }}>
-          <ellipse cx={CX} cy={PLATE_Y + 6} rx="112" ry="12" fill="#ecd2e3" /><ellipse cx={CX} cy={PLATE_Y + 3} rx="112" ry="11" fill="url(#plate)" stroke="#fff" strokeOpacity=".5" />
+          <ellipse cx={CX} cy={PLATE_Y + 8} rx="124" ry="13" fill="#0003" /><ellipse cx={CX} cy={PLATE_Y + 6} rx="118" ry="13" fill={`url(#gold-${uid})`} /><ellipse cx={CX} cy={PLATE_Y + 6} rx="112" ry="12" fill="#ecd2e3" /><ellipse cx={CX} cy={PLATE_Y + 3} rx="112" ry="11" fill="url(#plate)" stroke="#fff" strokeOpacity=".5" />
           <defs><linearGradient id="plate" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#fff7fb" /><stop offset="1" stopColor="#d3adc8" /></linearGradient></defs>
         </motion.g>
         {/* sponge layers + cream */}
-        {show(2) && <motion.g key="l1" style={dropStyle} {...dropAnim(layers[0].top)}><rect x={CX - layers[0].w / 2} y={layers[0].top} width={layers[0].w} height={LAYER_H} rx="9" fill={`url(#${spongeGrad})`} /><rect x={CX - layers[0].w / 2 + 6} y={layers[0].top + 6} width={layers[0].w - 12} height="3" rx="1.5" fill="#fff" opacity=".22" /></motion.g>}
+        {show(2) && <motion.g key="l1" style={dropStyle} {...dropAnim(layers[0].top)}><rect x={CX - layers[0].w / 2} y={layers[0].top} width={layers[0].w} height={LAYER_H} rx="9" fill={`url(#${spongeGrad})`} /><rect x={CX - layers[0].w / 2} y={layers[0].top} width={layers[0].w} height={LAYER_H} rx="9" fill={`url(#sh-${uid})`} /><rect x={CX - layers[0].w / 2} y={layers[0].top + LAYER_H - 11} width={layers[0].w} height="6" fill={`url(#gold-${uid})`} opacity=".95" />{Array.from({ length: 9 }, (_, k) => <circle key={k} cx={CX - layers[0].w / 2 + 14 + k * ((layers[0].w - 28) / 8)} cy={layers[0].top + LAYER_H - 17} r="2.2" fill="#fffaf5" stroke="#e2c6d2" strokeWidth=".6" />)}<rect x={CX - layers[0].w / 2 + 6} y={layers[0].top + 6} width={layers[0].w - 12} height="3" rx="1.5" fill="#fff" opacity=".22" /></motion.g>}
         {show(3) && <><motion.rect key="c1" x={CX - layers[0].w / 2 + 3} y={layers[0].top - CREAM_H} width={layers[0].w - 6} height={CREAM_H + 1} rx="3" fill={cfg.cream} initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: .6, ease: 'easeOut' }} style={{ transformBox: 'fill-box', transformOrigin: '0% 50%' }} />
-          <motion.g key="l2" style={dropStyle} {...dropAnim(layers[1].top, .55)}><rect x={CX - layers[1].w / 2} y={layers[1].top} width={layers[1].w} height={LAYER_H} rx="9" fill={`url(#${spongeGrad})`} /><rect x={CX - layers[1].w / 2 + 6} y={layers[1].top + 6} width={layers[1].w - 12} height="3" rx="1.5" fill="#fff" opacity=".22" /></motion.g></>}
+          <motion.g key="l2" style={dropStyle} {...dropAnim(layers[1].top, .55)}><rect x={CX - layers[1].w / 2} y={layers[1].top} width={layers[1].w} height={LAYER_H} rx="9" fill={`url(#${spongeGrad})`} /><rect x={CX - layers[1].w / 2} y={layers[1].top} width={layers[1].w} height={LAYER_H} rx="9" fill={`url(#sh-${uid})`} /><rect x={CX - layers[1].w / 2} y={layers[1].top + LAYER_H - 11} width={layers[1].w} height="6" fill={`url(#gold-${uid})`} opacity=".95" />{Array.from({ length: 9 }, (_, k) => <circle key={k} cx={CX - layers[1].w / 2 + 14 + k * ((layers[1].w - 28) / 8)} cy={layers[1].top + LAYER_H - 17} r="2.2" fill="#fffaf5" stroke="#e2c6d2" strokeWidth=".6" />)}<rect x={CX - layers[1].w / 2 + 6} y={layers[1].top + 6} width={layers[1].w - 12} height="3" rx="1.5" fill="#fff" opacity=".22" /></motion.g></>}
         {show(4) && <><motion.rect key="c2" x={CX - layers[1].w / 2 + 3} y={layers[1].top - CREAM_H} width={layers[1].w - 6} height={CREAM_H + 1} rx="3" fill={cfg.cream} initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: .6, ease: 'easeOut' }} style={{ transformBox: 'fill-box', transformOrigin: '100% 50%' }} />
-          <motion.g key="l3" style={dropStyle} {...dropAnim(layers[2].top, .55)}><rect x={CX - layers[2].w / 2} y={layers[2].top} width={layers[2].w} height={LAYER_H} rx="9" fill={`url(#${spongeGrad})`} /><rect x={CX - layers[2].w / 2 + 6} y={layers[2].top + 6} width={layers[2].w - 12} height="3" rx="1.5" fill="#fff" opacity=".22" /></motion.g></>}
+          <motion.g key="l3" style={dropStyle} {...dropAnim(layers[2].top, .55)}><rect x={CX - layers[2].w / 2} y={layers[2].top} width={layers[2].w} height={LAYER_H} rx="9" fill={`url(#${spongeGrad})`} /><rect x={CX - layers[2].w / 2} y={layers[2].top} width={layers[2].w} height={LAYER_H} rx="9" fill={`url(#sh-${uid})`} /><rect x={CX - layers[2].w / 2} y={layers[2].top + LAYER_H - 11} width={layers[2].w} height="6" fill={`url(#gold-${uid})`} opacity=".95" />{Array.from({ length: 9 }, (_, k) => <circle key={k} cx={CX - layers[2].w / 2 + 14 + k * ((layers[2].w - 28) / 8)} cy={layers[2].top + LAYER_H - 17} r="2.2" fill="#fffaf5" stroke="#e2c6d2" strokeWidth=".6" />)}<rect x={CX - layers[2].w / 2 + 6} y={layers[2].top + 6} width={layers[2].w - 12} height="3" rx="1.5" fill="#fff" opacity=".22" /></motion.g></>}
         {/* frosting coat + drips */}
         {show(5) && <motion.g key="frost" initial={{ scaleY: 0, opacity: 0 }} animate={{ scaleY: 1, opacity: 1 }} transition={{ duration: 1, ease: 'easeOut' }} style={{ transformBox: 'fill-box', transformOrigin: '50% 0%' }}>
           {layers.map((l, i) => <g key={i}>
@@ -99,10 +104,10 @@ export default function CakeAssembly({ style = 'strawberry', wished, onWish, buz
         {show(8) && <motion.g key="candle" initial={{ y: 34, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', stiffness: 120, damping: 13 }}>
           <rect x={CX - 5} y={topY - 46} width="10" height="46" rx="3" fill={`url(#st-${uid})`} stroke="#fff" strokeOpacity=".6" /><rect x={CX - 5} y={topY - 46} width="10" height="5" rx="2.5" fill="#fff" opacity=".7" /><path d={`M${CX} ${topY - 46} L${CX} ${topY - 51}`} stroke="#3a2a30" strokeWidth="1.6" />
         </motion.g>}
-        {show(9) && !wished && <motion.g className="cake-flame" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 10 }} style={{ transformBox: 'fill-box', transformOrigin: '50% 100%' }}>
-          <ellipse cx={CX} cy={topY - 64} rx="14" ry="18" fill="#ffd27a" opacity=".22" /><path d={`M${CX} ${topY - 79} C${CX + 8} ${topY - 68} ${CX + 7} ${topY - 56} ${CX} ${topY - 52} C${CX - 7} ${topY - 56} ${CX - 8} ${topY - 68} ${CX} ${topY - 79}Z`} fill="#ffb93d" /><path d={`M${CX} ${topY - 71} C${CX + 4} ${topY - 65} ${CX + 3} ${topY - 58} ${CX} ${topY - 55} C${CX - 3} ${topY - 58} ${CX - 4} ${topY - 65} ${CX} ${topY - 71}Z`} fill="#fff4c2" />
+        {show(9) && !wished && <motion.g className={`cake-flame ${blowing ? 'blowing' : ''}`} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 10 }} style={{ transformBox: 'fill-box', transformOrigin: '50% 100%' }}>
+          <circle cx={CX} cy={topY - 64} r="34" fill={`url(#glow-${uid})`} className="flame-glow" /><ellipse cx={CX} cy={topY - 64} rx="14" ry="18" fill="#ffd27a" opacity=".22" /><path d={`M${CX} ${topY - 79} C${CX + 8} ${topY - 68} ${CX + 7} ${topY - 56} ${CX} ${topY - 52} C${CX - 7} ${topY - 56} ${CX - 8} ${topY - 68} ${CX} ${topY - 79}Z`} fill="#ffb93d" /><path d={`M${CX} ${topY - 71} C${CX + 4} ${topY - 65} ${CX + 3} ${topY - 58} ${CX} ${topY - 55} C${CX - 3} ${topY - 58} ${CX - 4} ${topY - 65} ${CX} ${topY - 71}Z`} fill="#fff4c2" />
         </motion.g>}
-        {wished && <g className="cake-smoke"><path d={`M${CX} ${topY - 52} q-6 -10 0 -18 q6 -8 0 -16`} fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity=".7" /></g>}
+        {wished && <g className="cake-smoke"><path d={`M${CX} ${topY - 52} q10 -12 0 -22 q-10 -10 0 -22`} fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" opacity=".5" /><path d={`M${CX} ${topY - 52} q-12 -10 -2 -24 q8 -10 -2 -20`} fill="none" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" opacity=".4" /><path d={`M${CX} ${topY - 52} q-6 -10 0 -18 q6 -8 0 -16`} fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity=".7" /></g>}
         {/* carriage + nozzle (drawn last so it sits in front of the gantry) */}
         <motion.g animate={{ x: sweepX }} transition={stage === 6 ? { duration: 3.4, ease: 'easeInOut' } : { type: 'spring', stiffness: 70, damping: 14 }}>
           <rect x={CX - 20} y="26" width="40" height="14" rx="5" className="mc-carriage" />
@@ -111,9 +116,10 @@ export default function CakeAssembly({ style = 'strawberry', wished, onWish, buz
         </motion.g>
       </svg>
     </button>
-    <p className="cake-caption" role="status" aria-live="polite">{wished ? 'Wish sent into the universe ✨' : CAPTIONS[Math.min(stage, 9)]}</p>
+    {wished && <div className="wish-burst" aria-hidden="true"><b className="wish-ring" /><b className="wish-ring r2" />{Array.from({ length: 22 }, (_, k) => <i key={k} className={`wb wb-${k % 4}`} style={{ ['--x' as string]: `${(k * 53 % 100) - 50}px`, ['--d' as string]: `${(k % 9) * .16}s`, ['--s' as string]: `${.7 + (k % 5) * .18}`, ['--t' as string]: `${2.6 + (k % 4) * .5}s` } as CSSProperties}>{['✦', '♡', '✧', '★'][k % 4]}</i>)}{[0, 1, 2].map(k => <span key={k} className="wish-lantern" style={{ ['--lx' as string]: `${(k - 1) * 72}px`, ['--ld' as string]: `${k * .5}s` } as CSSProperties} />)}</div>}
+    <p className="cake-caption" role="status" aria-live="polite">{wished ? 'Wish sent into the universe ✨' : blowing ? 'Whoooosh… 🌬️' : CAPTIONS[Math.min(stage, 9)]}</p>
     <div className="cake-progress" aria-hidden="true"><span style={{ width: `${Math.min(100, (stage + 1) / 10 * 100)}%` }} /></div>
     {!ready && <button type="button" className="text-btn cake-skip" onClick={() => setStage(9)}>Skip assembly <SkipForward size={13} /></button>}
-    {ready && !wished && <p className="cake-tap-hint"><Flame size={14} /> Tap the candle to make a wish</p>}
+    {ready && !wished && <p className="cake-tap-hint"><Flame size={14} /> Tap the cake to blow out the candle</p>}
   </div>
 }
