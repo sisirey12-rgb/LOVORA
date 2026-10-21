@@ -19,6 +19,17 @@ const CAPTIONS = ['Warming up the cake machine…', 'Conveyor brings the plate�
 const SCHEDULE = [0, 650, 1450, 2350, 3250, 4150, 5000, 6200, 7100, 7900]
 const CX = 160, PLATE_Y = 246, LAYER_H = 42, CREAM_H = 6
 
+/** Batter / cream pouring out of the nozzle: a stretching stream, falling blobs and a splat where it lands. */
+function Stream({ c, to, d }: { c: string; to: number; d: number }) {
+  const h = Math.max(10, to - 62)
+  return <motion.g initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 1, 0] }} transition={{ delay: d, duration: 1.15, times: [0, .08, .86, 1] }}>
+    <motion.rect x={CX - 3.5} y={62} width={7} height={h} rx={3.5} fill={c} initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ delay: d, duration: .22, ease: 'easeIn' }} style={{ transformBox: 'fill-box', transformOrigin: '50% 0%' }} />
+    <rect x={CX - 1.5} y={62} width={1.8} height={h} rx={1} fill="#fff" opacity=".45" />
+    {[0, 1, 2].map(i => <circle key={i} className="drip" cx={CX} cy={62} r={4.6 - i} fill={c} style={{ ['--fall' as string]: `${h}px`, animationDelay: `${d + i * .13}s` } as CSSProperties} />)}
+    <motion.ellipse cx={CX} cy={to} rx={10} ry={3} fill={c} initial={{ scaleX: 0, opacity: 0 }} animate={{ scaleX: [0, 2.2, 1.4], opacity: [0, 1, 0] }} transition={{ delay: d + .2, duration: .5 }} style={{ transformBox: 'fill-box', transformOrigin: 'center' }} />
+  </motion.g>
+}
+
 function DecoShape({ type, x, y, i }: { type: Deco; x: number; y: number; i: number }) {
   const r = 5 + (i % 3)
   switch (type) {
@@ -53,12 +64,39 @@ export default function CakeAssembly({ style = 'strawberry', wished, onWish, buz
   const spongeGrad = `sp-${uid}`, frostGrad = `fr-${uid}`
   const show = (n: number) => stage >= n
   const dropStyle: CSSProperties = { transformBox: 'fill-box', transformOrigin: '50% 100%' } // squash pivot at the base
-  const dropAnim = (top: number, d = 0) => ({ initial: { y: 50 - top, opacity: 0, scaleY: 1.08, scaleX: .96 }, animate: { y: 0, opacity: 1, scaleY: 1, scaleX: 1 }, transition: { y: { type: 'spring' as const, stiffness: 140, damping: 11, delay: d }, opacity: { duration: .15, delay: d }, scaleY: { type: 'spring' as const, stiffness: 220, damping: 9, delay: d }, scaleX: { type: 'spring' as const, stiffness: 220, damping: 9, delay: d } } })
+  const dropAnim = (_top: number, d = 0) => ({ initial: { scaleY: 0, scaleX: .55 }, animate: { scaleY: [0, 1.16, .86, 1.07, .97, 1.01, 1], scaleX: [.55, .9, 1.12, .96, 1.03, .99, 1] }, transition: { duration: 1.05, delay: d + .25, times: [0, .3, .48, .64, .78, .9, 1], ease: 'easeOut' as const } })
+  const sp = cfg.sponge[1]
+  const streams = stage === 2 ? [{ c: sp, to: layers[0].top + 4, d: 0 }] : stage === 3 ? [{ c: cfg.cream, to: layers[0].top - CREAM_H, d: 0 }, { c: sp, to: layers[1].top + 4, d: .55 }] : stage === 4 ? [{ c: cfg.cream, to: layers[1].top - CREAM_H, d: 0 }, { c: sp, to: layers[2].top + 4, d: .55 }] : []
   const carriageX = stage <= 1 ? -96 : stage === 6 ? undefined : 0
   const sweepX = stage === 6 ? [-70, 70, -70, 0] : carriageX
   const ready = stage >= 9
-  return <div className="cake-assembly">
-    <button type="button" className={`cake-stage-btn ${ready ? 'ready' : ''} ${wished ? 'wished' : ''}`} onClick={() => { if (!ready || wished || blowing) return; setBlowing(true); sfx.blow(); buzz?.([12, 40, 12, 40, 12]); window.setTimeout(() => { onWish(); sfx.wish(); buzz?.([30, 40, 60]) }, 1000) }} disabled={!ready || wished || blowing} aria-label={ready ? 'Tap the candle to make a wish' : 'The cake is being assembled'}>
+  const [micOn, setMicOn] = useState(false)
+  const [level, setLevel] = useState(0)
+  const micRef = useRef<{ stop: () => void }>()
+  useEffect(() => () => micRef.current?.stop(), [])
+  const blow = () => { if (!ready || wished || blowing) return; setBlowing(true); sfx.blow(); buzz?.([12, 40, 12, 40, 12]); window.setTimeout(() => { onWish(); sfx.wish(); buzz?.([30, 40, 60]) }, 1000) }
+  const startMic = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      const ctx = new Ctx(); const an = ctx.createAnalyser(); an.fftSize = 512
+      ctx.createMediaStreamSource(stream).connect(an)
+      const buf = new Uint8Array(an.fftSize); let raf = 0, hits = 0
+      const stop = () => { cancelAnimationFrame(raf); stream.getTracks().forEach(tr => tr.stop()); void ctx.close(); setMicOn(false); setLevel(0) }
+      micRef.current = { stop }; setMicOn(true)
+      const loop = () => {
+        an.getByteTimeDomainData(buf); let sum = 0
+        for (let i = 0; i < buf.length; i++) { const v = (buf[i] - 128) / 128; sum += v * v }
+        const rms = Math.sqrt(sum / buf.length); setLevel(Math.min(1, rms * 4))
+        hits = rms > .16 ? hits + 1 : Math.max(0, hits - 1)
+        if (hits > 10) { stop(); blow(); return }
+        raf = requestAnimationFrame(loop)
+      }
+      loop()
+    } catch { setMicOn(false) }
+  }
+  return <div className={`cake-assembly ${blowing ? 'is-blowing' : ''}`} style={{ ['--blow' as string]: level } as CSSProperties}>
+    <button type="button" className={`cake-stage-btn ${ready ? 'ready' : ''} ${wished ? 'wished' : ''}`} onClick={blow} disabled={!ready || wished || blowing} aria-label={ready ? 'Tap the candle to make a wish' : 'The cake is being assembled'}>
       <svg viewBox="0 0 320 290" className="cake-svg" role="img" aria-label="A birthday cake being assembled by a machine">
         <defs>
           <linearGradient id={spongeGrad} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={cfg.sponge[0]} /><stop offset=".5" stopColor={cfg.sponge[1]} /><stop offset="1" stopColor={cfg.sponge[0]} /></linearGradient>
@@ -112,14 +150,17 @@ export default function CakeAssembly({ style = 'strawberry', wished, onWish, buz
         <motion.g animate={{ x: sweepX }} transition={stage === 6 ? { duration: 3.4, ease: 'easeInOut' } : { type: 'spring', stiffness: 70, damping: 14 }}>
           <rect x={CX - 20} y="26" width="40" height="14" rx="5" className="mc-carriage" />
           <rect x={CX - 3} y="38" width="6" height={stage >= 2 && stage <= 5 ? 14 : 6} rx="2" className="mc-piston" />
-          {stage === 6 && <path d={`M${CX - 9} 40 L${CX + 9} 40 L${CX + 2} 62 L${CX - 2} 62Z`} className="mc-nozzle" />}
+          {stage >= 2 && stage <= 6 && <path d={`M${CX - 9} 40 L${CX + 9} 40 L${CX + 3} 62 L${CX - 3} 62Z`} className="mc-nozzle" />}
+          {streams.map((s, i) => <Stream key={`${stage}-${i}`} {...s} />)}
         </motion.g>
       </svg>
     </button>
+    {wished && <div className="wish-flash" aria-hidden="true" />}
     {wished && <div className="wish-burst" aria-hidden="true"><b className="wish-ring" /><b className="wish-ring r2" />{Array.from({ length: 22 }, (_, k) => <i key={k} className={`wb wb-${k % 4}`} style={{ ['--x' as string]: `${(k * 53 % 100) - 50}px`, ['--d' as string]: `${(k % 9) * .16}s`, ['--s' as string]: `${.7 + (k % 5) * .18}`, ['--t' as string]: `${2.6 + (k % 4) * .5}s` } as CSSProperties}>{['✦', '♡', '✧', '★'][k % 4]}</i>)}{[0, 1, 2].map(k => <span key={k} className="wish-lantern" style={{ ['--lx' as string]: `${(k - 1) * 72}px`, ['--ld' as string]: `${k * .5}s` } as CSSProperties} />)}</div>}
     <p className="cake-caption" role="status" aria-live="polite">{wished ? 'Wish sent into the universe ✨' : blowing ? 'Whoooosh… 🌬️' : CAPTIONS[Math.min(stage, 9)]}</p>
     <div className="cake-progress" aria-hidden="true"><span style={{ width: `${Math.min(100, (stage + 1) / 10 * 100)}%` }} /></div>
     {!ready && <button type="button" className="text-btn cake-skip" onClick={() => setStage(9)}>Skip assembly <SkipForward size={13} /></button>}
     {ready && !wished && <p className="cake-tap-hint"><Flame size={14} /> Tap the cake to blow out the candle</p>}
+    {ready && !wished && !blowing && <button type="button" className="text-btn mic-blow" onClick={micOn ? undefined : startMic}>🎤 {micOn ? "Listening… blow into your mic!" : "Or really blow into your phone"}</button>}
   </div>
 }
