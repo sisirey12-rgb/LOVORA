@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useState, type CSSProperties } from 'react'
 import type { ThemePalette } from '../../data'
 
-const VB_W = 600, BALLOON_W = 46, WISH_W = 66
+const VB_W = 600, BALLOON_W = 40, WISH_W = 88
 const TRUNK = 'M300 470 C296 420 304 360 300 300'
 const BRANCHES = [
   'M300 360 C250 335 215 300 175 245', 'M300 345 C350 320 385 285 430 235', 'M300 300 C270 260 262 215 240 160',
@@ -13,7 +13,7 @@ const TWIGS = [
   'M300 110 C285 90 275 75 270 55', 'M300 110 C315 90 325 75 330 55',
 ]
 // Wish-balloon slots (viewBox units) ordered so any count from 3 to 10 looks balanced.
-const SLOTS = [[300, 100], [200, 175], [400, 175], [150, 255], [450, 255], [250, 235], [350, 235], [112, 170], [490, 170], [300, 180]]
+const SLOTS = [[300, 92], [190, 165], [410, 165], [135, 262], [465, 262], [255, 240], [345, 240], [92, 150], [508, 150], [300, 175]]
 const shade = (hex: string, amt: number) => { const n = parseInt(hex.slice(1), 16); const f = (c: number) => Math.max(0, Math.min(255, Math.round(c + (amt > 0 ? (255 - c) * amt : c * amt)))); return `#${[(n >> 16) & 255, (n >> 8) & 255, n & 255].map(f).map(v => v.toString(16).padStart(2, '0')).join('')}` }
 const rng = (seed: number) => () => { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296 }
 
@@ -44,7 +44,7 @@ function HeartBalloon({ grad, glyph }: { grad: string; glyph?: string }) {
  * 1) trunk and branches draw themselves (bare tree)  2) heart balloons inflate at the base, rise and take their place  3) they sway forever.
  * Colours come from the selected theme's palette.
  */
-export default function BalloonTree({ palette, count, popped, onPop }: { palette: ThemePalette; count: number; popped: number[]; onPop: (i: number) => void }) {
+export default function BalloonTree({ palette, count, popped, onPop }: { palette: ThemePalette; count: number; popped: number[]; onPop: (i: number, variant: number) => void }) {
   const uid = useId().replace(/:/g, '')
   const canopy = useCanopy()
   const [ready, setReady] = useState(false)
@@ -56,7 +56,7 @@ export default function BalloonTree({ palette, count, popped, onPop }: { palette
     ['--sx' as string]: `${(300 - x) / w * 100}%`, ['--sy' as string]: `${(455 - y) / (w * 1.36) * 100}%`, ['--delay' as string]: `${delay}s`, ['--sway' as string]: `${(delay + 2.2).toFixed(2)}s`,
   } as CSSProperties)
   const slots = SLOTS.slice(0, Math.max(3, Math.min(10, count)))
-  const glyphs = ['♡', '✦', '01', '♡', '✧', '♡', '✦', '♡', '✧', '♡']
+  const glyphs = ['♡', '✦', '♡', '✧', '♡', '✦', '♡', '✧', '♡', '✦']
   return <div className="tb-wrap" style={{ ['--branch' as string]: palette.branch, ['--trunk' as string]: palette.trunk, ['--tb-glow' as string]: palette.glow } as CSSProperties}>
     <svg width="0" height="0" className="tb-defs" aria-hidden="true"><defs>{colors.map((c, i) => <radialGradient key={i} id={`g${i}-${uid}`} cx=".32" cy=".28" r=".85"><stop offset="0" stopColor={shade(c, .55)} /><stop offset=".45" stopColor={c} /><stop offset="1" stopColor={shade(c, -.35)} /></radialGradient>)}</defs></svg>
     <div className="tb-glow" />
@@ -72,9 +72,9 @@ export default function BalloonTree({ palette, count, popped, onPop }: { palette
     <div className="tb-layer">
       {slots.map(([x, y], i) => {
         const isPopped = popped.includes(i)
-        return <div key={i} className={`tb-balloon tb-wish ${isPopped ? 'popped' : ''}`} style={place(x, y, WISH_W, 3.4 + i * .16)}>
-          {!isPopped && <button type="button" className="tb-wish-btn" onClick={() => onPop(i)} disabled={!ready} aria-label={`Pop wish balloon ${i + 1}`}><HeartBalloon grad={`g${(i + 2) % colors.length}-${uid}`} glyph={glyphs[i]} /></button>}
-          {isPopped && <span className="tb-burst" aria-hidden="true">{Array.from({ length: 12 }, (_, k) => <i key={k} style={{ ['--a' as string]: `${k * 30}deg`, background: colors[(i + k) % colors.length], ['--r' as string]: `${46 + (k % 3) * 16}px` } as CSSProperties} />)}</span>}
+        return <div key={i} className={`tb-balloon tb-wish ${isPopped ? 'popped' : ''} ${ready ? 'ready' : ''}`} style={place(x, y, WISH_W, 3.4 + i * .16)}>
+          {!isPopped && <button type="button" className="tb-wish-btn" onClick={() => onPop(i, i)} disabled={!ready} aria-label={`Pop wish balloon ${i + 1}`}><HeartBalloon grad={`g${(i + 2) % colors.length}-${uid}`} glyph={glyphs[i]} /></button>}
+          {isPopped && <span className={`tb-burst tb-burst-${i % 4}`} aria-hidden="true">{Array.from({ length: i % 4 === 1 ? 16 : 14 }, (_, k) => <i key={k} style={{ ['--a' as string]: `${k * (360 / (i % 4 === 1 ? 16 : 14))}deg`, background: colors[(i + k) % colors.length], color: colors[(i + k) % colors.length], ['--r' as string]: `${58 + (k % 3) * 22}px`, ['--d' as string]: `${(k % 4) * .03}s` } as CSSProperties}>{i % 4 === 0 ? '♥' : i % 4 === 2 ? '✿' : i % 4 === 3 ? '★' : ''}</i>)}<b className="tb-ring" /></span>}
         </div>
       })}
     </div>
