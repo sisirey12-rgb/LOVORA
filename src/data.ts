@@ -18,6 +18,12 @@ export const themes: { name: ThemeName; colors: string; description: string }[] 
   { name: 'Pastel Wonderland', colors: 'linear-gradient(135deg,#ffe2f2,#b8d8ff)', description: 'Candy-coloured daydream' },
   { name: 'Neon Fantasy', colors: 'linear-gradient(135deg,#18122f,#ff4fc8)', description: 'Electric after-dark energy' },
   { name: 'Meow Magic', colors: 'linear-gradient(135deg,#f4a5d7,#a68bff)', description: 'A little cat-inspired charm' },
+  { name: 'Sunset Glow', colors: 'linear-gradient(135deg,#ff9a5c,#c2307a)', description: 'Warm orange-to-berry skies' },
+  { name: 'Emerald Garden', colors: 'linear-gradient(135deg,#7be0a8,#1c5c4a)', description: 'Fresh, leafy and calm' },
+  { name: 'Cotton Candy', colors: 'linear-gradient(135deg,#ffc2e8,#a8d8ff)', description: 'Sugary pink and sky blue' },
+  { name: 'Royal Velvet', colors: 'linear-gradient(135deg,#7b2cbf,#240046)', description: 'Deep purple and gold' },
+  { name: 'Aurora Sky', colors: 'linear-gradient(135deg,#5ef2c8,#4a5bd6)', description: 'Northern lights shimmer' },
+  { name: 'Mocha Cream', colors: 'linear-gradient(135deg,#e8c9a8,#7a4a38)', description: 'Cosy coffee and cream' },
 ]
 export const defaultScenes: SceneId[] = ['heart','intro','cake','balloons','letter','video','memories','finale']
 export const sceneLabels: Record<SceneId, string> = { heart: 'Floating heart', intro: 'Magical intro', cake: 'Birthday cake', balloons: 'Pop the balloons', letter: 'Personal letter', video: 'Cat video surprise', memories: 'Photo memories', finale: 'Grand finale' }
@@ -57,7 +63,13 @@ export const bouquetStyles = [
   { id: 'peonies', title: 'Pink peonies', emoji: '🌸', flowers: '🌸🌸🌸' },
   { id: 'wildflowers', title: 'Meadow wildflowers', emoji: '💐', flowers: '🌼🪻🌸' },
   { id: 'heart', title: 'Heart-shaped bouquet', emoji: '💝', flowers: '💗🌹💗' },
+  { id: 'bubbly', title: 'Bubbly bold', display: "'Fredoka', sans-serif", script: "'Lobster', cursive", body: "'DM Sans', sans-serif" },
+  { id: 'cursive', title: 'Neat cursive', display: "'Caveat', cursive", script: "'Caveat', cursive", body: "'Caveat', cursive" },
 ] as const
+export const textAnims = [
+  { id: 'rise', title: 'Rise up' }, { id: 'fade', title: 'Soft fade' }, { id: 'typewriter', title: 'Typewriter' },
+  { id: 'glow', title: 'Glow pulse' }, { id: 'bounce', title: 'Bounce' }, { id: 'shimmer', title: 'Shimmer' }, { id: 'none', title: 'No animation' },
+]
 
 /** Theme palettes drive every balloon, the tree and the video-card balloons so they always match the selected theme. */
 export interface ThemePalette { balloons: string[]; branch: string; trunk: string; glow: string }
@@ -71,6 +83,12 @@ export const themePalettes: Record<ThemeName, ThemePalette> = {
   'Ocean Hearts': { balloons: ['#6fd8e6', '#3b9bd6', '#a6efee', '#2b73b8', '#59c1d9'], branch: '#7fb3c4', trunk: '#3e6f8a', glow: '#4fc5e0' },
   'Pastel Wonderland': { balloons: ['#ffc2e2', '#b8d8ff', '#e0c8ff', '#c6f0d8', '#ffe2b8'], branch: '#c9b1cf', trunk: '#8f7a9c', glow: '#ffcaec' },
   'Neon Fantasy': { balloons: ['#ff4fc8', '#7a5cff', '#3df0ff', '#ff8a3d', '#b6ff3d'], branch: '#b08ad8', trunk: '#5a3f8a', glow: '#ff32c7' },
+  'Sunset Glow': { balloons: ['#ff9a5c', '#ff5e7e', '#ffc46b', '#c2307a', '#ff7f50'], branch: '#d9946a', trunk: '#8a4a3a', glow: '#ff7a4d' },
+  'Emerald Garden': { balloons: ['#4fd69a', '#2fa37c', '#a8f0c6', '#1f7a62', '#7be0a8'], branch: '#7fb89a', trunk: '#3f6b57', glow: '#3de0a0' },
+  'Cotton Candy': { balloons: ['#ffa8dc', '#9fd0ff', '#ffd1ef', '#7db8ff', '#ff8fd0'], branch: '#c8b4e0', trunk: '#8f78b0', glow: '#ff9fd8' },
+  'Royal Velvet': { balloons: ['#9d4edd', '#c77dff', '#ffd166', '#7b2cbf', '#e0aaff'], branch: '#a88bd0', trunk: '#4a2a6e', glow: '#b565ff' },
+  'Aurora Sky': { balloons: ['#5ef2c8', '#4a8bff', '#a78bfa', '#38d6e0', '#7ee8a8'], branch: '#8ad0c8', trunk: '#3f6a8a', glow: '#4af0d0' },
+  'Mocha Cream': { balloons: ['#e8c9a8', '#c99a74', '#f5e1c8', '#a8704f', '#d9b08c'], branch: '#c9a888', trunk: '#7a4a38', glow: '#e0b088' },
   'Meow Magic': { balloons: ['#f4a5d7', '#a68bff', '#ffd0ea', '#8f6ee0', '#ff9fd0'], branch: '#c3a0d6', trunk: '#7c5a98', glow: '#ff99da' },
 }
 /** Experiences created before the cat-video scene existed get it right after the letter (schema v2 and up manage it themselves). */
