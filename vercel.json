@@ -1,3 +1,16 @@
 {
-  "rewrites": [{ "source": "/s/:id", "destination": "/" }, { "source": "/dashboard", "destination": "/" }, { "source": "/create", "destination": "/" }]
+  "rewrites": [
+    {
+      "source": "/s/:id",
+      "destination": "/api/share?id=:id"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/"
+    },
+    {
+      "source": "/create",
+      "destination": "/"
+    }
+  ]
 }
