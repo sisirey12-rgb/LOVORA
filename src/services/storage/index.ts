@@ -4,7 +4,7 @@ import { supabase } from '../supabase/client'
 import { friendlyError } from '../errors'
 
 const need = () => {
-  if (!supabase) throw new Error('Cloud sharing is not configured yet. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY, then rebuild or redeploy.')
+  if (!supabase) throw new Error('Sharing is not available right now. Please try again in a little while.')
   return supabase
 }
 async function requireUser() {
