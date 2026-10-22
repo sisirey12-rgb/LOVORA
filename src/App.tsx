@@ -47,7 +47,7 @@ export default function App() {
   useEffect(()=>{ if(recovering) setAuthOpen(true) },[recovering])
   const exitEditor=()=>{setPage('home');setEditing(undefined);window.history.pushState({},'','/')}
   const onSaved=()=>{refresh();setToast('Saved on this device');window.setTimeout(()=>setToast(''),2200)}
-  const copyLink=async(x:Experience)=>{const url=`${window.location.origin}/s/${x.id}`;try{await navigator.clipboard.writeText(url);setToast('Link copied — local-only drafts will not open on another device.')}catch{setToast(url)}window.setTimeout(()=>setToast(''),3500)}
+  const copyLink=(x:Experience)=>gate(async()=>{setToast('Preparing your share link…');try{const published=await storage.publish(x);storage.saveDraft(published);refresh();const url=`${window.location.origin}/s/${published.id}`;try{await navigator.clipboard.writeText(url);setToast('Share link copied ♡ anyone can open it')}catch{setToast(url)}}catch(err){setToast(err instanceof Error?err.message:'Could not create the link.')}window.setTimeout(()=>setToast(''),4000)})
   const remove=(x:Experience)=>{if(confirm(`Delete “${x.title}” from this device?`)){storage.removeLocal(x.id);refresh()}}
   const duplicate=(x:Experience)=>{storage.duplicate(x);refresh();setToast('Draft duplicated');window.setTimeout(()=>setToast(''),2200)}
   const explore=()=>document.getElementById('experiences')?.scrollIntoView({behavior:'smooth'})
