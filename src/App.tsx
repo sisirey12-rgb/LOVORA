@@ -11,6 +11,7 @@ import { supabase } from './services/supabase/client'
 import { useAuth } from './services/auth'
 import AuthModal from './components/AuthModal'
 import DevCredit from './components/DevCredit'
+import WishPage from './components/WishPage'
 import { LogOut, UserRound } from 'lucide-react'
 
 type Page = 'home' | 'dashboard' | 'editor'
@@ -29,6 +30,7 @@ export default function App() {
   const [menu,setMenu] = useState(false)
   const [drafts,setDrafts] = useState<Experience[]>([])
   const [editing,setEditing] = useState<Experience|undefined>()
+  const [wishId] = useState(()=>window.location.pathname.match(/^\/wish\/([^/]+)/)?.[1])
   const [player,setPlayer] = useState<Experience|undefined>()
   const [playerIsPreview,setPlayerIsPreview] = useState(false)
   const { user, signOut, recovering, dismissRecovery, loading: authLoading } = useAuth()
@@ -51,6 +53,7 @@ export default function App() {
   const remove=(x:Experience)=>{if(confirm(`Delete “${x.title}” from this device?`)){storage.removeLocal(x.id);refresh()}}
   const duplicate=(x:Experience)=>{storage.duplicate(x);refresh();setToast('Draft duplicated');window.setTimeout(()=>setToast(''),2200)}
   const explore=()=>document.getElementById('experiences')?.scrollIntoView({behavior:'smooth'})
+  if(wishId) return <WishPage id={decodeURIComponent(wishId)}/>
   if(player) return <ScenePlayer experience={player} preview={playerIsPreview} onClose={()=>{setPlayer(undefined);setPlayerIsPreview(false);setRemoteMessage('');window.history.pushState({},'','/')}}/>
   return <div className="app-shell">
     <header className="site-nav"><Brand/><nav className={menu?'nav-open':''}><button onClick={()=>{setPage('home');setMenu(false);window.history.pushState({},'','/')}}>Discover</button><button onClick={()=>{setPage('dashboard');setMenu(false);refresh();window.history.pushState({},'','/dashboard')}}>My creations</button><a href="#how-it-works" onClick={()=>setMenu(false)}>How it works</a></nav><div className="nav-actions"><button className="theme-toggle" onClick={()=>setDark(v=>!v)} aria-label="Toggle theme">{dark?<Sun size={17}/>:<Moon size={17}/>}</button>{user?<button className="ghost-btn nav-user" onClick={()=>signOut().then(()=>setToast('Signed out')).catch(()=>{})} title={`Signed in as ${user.email}. Tap to sign out`}><UserRound size={15}/><span>{user.email?.split('@')[0]}</span><LogOut size={14}/></button>:!authLoading&&<button className="ghost-btn nav-user" onClick={()=>{setPendingCreate(false);setAuthOpen(true)}}><UserRound size={15}/> Sign in</button>}<button className="primary-btn nav-create" onClick={newExperience}><Plus size={16}/> Create yours</button><button className="menu-toggle" onClick={()=>setMenu(v=>!v)} aria-label="Toggle menu">{menu?<X/>:<Menu/>}</button></div></header>
