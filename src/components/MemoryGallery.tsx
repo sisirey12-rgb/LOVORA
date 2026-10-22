@@ -2,6 +2,7 @@ import { useState, type CSSProperties } from 'react'
 import { Heart } from 'lucide-react'
 import type { MemoryItem } from '../types'
 import { sfx } from '../lib/sfx'
+import ScratchLayer from './ScratchLayer'
 
 const FRAMES = ['gold', 'wood', 'heart', 'film', 'washi', 'arch', 'scallop', 'neon'] as const
 const FX = ['sparkle', 'petals', 'glow', 'flicker', 'hearts', 'twinkle', 'sparkle', 'pulse']
@@ -25,7 +26,7 @@ export default function MemoryGallery({ memories, colors, buzz }: { memories: Me
         return <figure key={m.id} role="listitem" className={`hang frame-${f} fx-${FX[i % FX.length]} ${on ? 'is-active' : ''}`} style={{ ['--tilt' as string]: `${TILT[i % TILT.length]}deg`, ['--sw' as string]: `${3.2 + (i % 4) * .5}s` } as CSSProperties}>
           <span className="peg" aria-hidden="true" />
           <button type="button" className="frame-btn" onClick={() => poke(i)} aria-label={`${m.caption || 'Memory'} — tap for a little sparkle`}>
-            <span className="frame-mat">{m.kind === 'video' ? <video src={m.src} controls playsInline preload="metadata" onClick={e => e.stopPropagation()} /> : <img src={m.src} alt={m.caption || 'Shared memory'} loading="lazy" />}</span>
+            <span className="frame-mat">{m.kind === 'video' ? <video src={m.src} controls playsInline preload="metadata" onClick={e => e.stopPropagation()} /> : <img src={m.src} alt={m.caption || 'Shared memory'} loading="lazy" />}{m.kind !== 'video' && <ScratchLayer armed={on} color={colors[i % colors.length]} onReveal={() => buzz([20, 30, 20])} />}</span>
             {f === 'heart' && <Heart className="frame-heart-deco" size={22} fill="currentColor" />}
           </button>
           {on && <span key={burstKey} className="frame-burst" aria-hidden="true">{Array.from({ length: 12 }, (_, k) => <i key={k} style={{ ['--a' as string]: `${k * 30}deg`, ['--c' as string]: colors[k % colors.length] } as CSSProperties}>{k % 3 === 0 ? '♥' : '✦'}</i>)}</span>}
@@ -33,6 +34,6 @@ export default function MemoryGallery({ memories, colors, buzz }: { memories: Me
         </figure>
       })}
     </div>
-    <p className="gallery-hint">Swipe along the rope · tap a frame for a sparkle</p>
+    <p className="gallery-hint">Swipe along the rope · tap a frame, then scratch to reveal</p>
   </div>
 }
