@@ -53,6 +53,17 @@ class AudioManager {
   }
   /** Start (or continue) the celebration soundtrack. Never rewinds. */
   startMusic() { this.musicWanted = true; this.armGestureUnlock(); void this.tryPlayMusic() }
+  private an: AnalyserNode | null = null
+  /** Beat/volume analyser for the soundtrack (created once, only when something asks for it). */
+  getAnalyser(): AnalyserNode | null {
+    try {
+      if (this.an) return this.an
+      this.ensure()
+      const C = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      const ctx = new C(), src = ctx.createMediaElementSource(this.music!), an = ctx.createAnalyser()
+      an.fftSize = 256; src.connect(an); an.connect(ctx.destination); void ctx.resume(); this.an = an; return an
+    } catch { return null }
+  }
   get musicStarted() { return this.musicWanted }
   setMusicEnabled(on: boolean) {
     this.musicEnabled = on
