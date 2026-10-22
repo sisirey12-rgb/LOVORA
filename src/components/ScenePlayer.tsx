@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Heart, Volume2, VolumeX, RotateCcw, Share2, Sparkles, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Heart, Volume2, VolumeX, RotateCcw, Share2, SkipForward, Sparkles, X } from 'lucide-react'
 import type { Experience, SceneId } from '../types'
 import { sceneLabels, bouquetStyles, themePalettes, normalizeScenes, fontById, suggestions } from '../data'
 import { sfx } from '../lib/sfx'
@@ -87,6 +87,7 @@ export default function ScenePlayer({ experience, onClose, preview = false }: Pr
     <div className="player-top">
       <button className="icon-btn" onClick={onClose} aria-label="Close experience"><X /></button>
       <div className="player-progress">{scenes.map((s, i) => <button key={s} onClick={() => setIndex(i)} className={i === index ? 'active' : ''} aria-label={`Go to ${sceneLabels[s]}`} />)}</div>
+      {preview && <button className="text-btn player-skip" onClick={() => setIndex(lenRef.current - 1)}>Skip <SkipForward size={14} /></button>}
       <button className="icon-btn" onClick={() => { audio.unlock(); setSoundOn(v => !v) }} aria-label={soundOn ? 'Mute sound' : 'Turn sound on'}>{soundOn ? <Volume2 /> : <VolumeX />}</button>
     </div>
     <Particles count={8} />
