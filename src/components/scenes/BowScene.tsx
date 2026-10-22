@@ -33,6 +33,8 @@ export default function BowScene({ onHit, buzz, onGesture }: { onHit: () => void
   const limbTop = useRef<SVGPathElement>(null), limbBot = useRef<SVGPathElement>(null), string = useRef<SVGPathElement>(null)
   const arrow = useRef<SVGGElement>(null), power = useRef<HTMLSpanElement>(null)
   const traj = useRef<SVGPathElement>(null)
+  const trail = useRef<(SVGCircleElement | null)[]>([])
+  const trailPts = useRef<{ x: number; y: number }[]>([])
   const raf = useRef(0)
   const alive = useRef(true)
   const s = useRef({ nx: 0, ny: 0, vx: 0, vy: 0, vib: false, phase: 'idle' as Phase, pull: 0, px: 0, py: 0, avx: 0, avy: 0, last: 0, tier: 0, pointer: -1 })
@@ -53,6 +55,9 @@ export default function BowScene({ onHit, buzz, onGesture }: { onHit: () => void
     string.current?.setAttribute('stroke-width', String(1.6 + t * 1.2))
     string.current?.setAttribute('stroke', t > .02 ? `hsl(${330 - t * 40} 90% ${80 + t * 10}%)` : '#fbe6f1')
     if (power.current) power.current.style.width = `${Math.round(t * 100)}%`
+    const pts = trailPts.current
+    if (st.phase === 'flying') { pts.push({ x: st.px, y: st.py }); if (pts.length > 12) pts.shift() } else if (st.phase !== 'hit') pts.length = 0
+    trail.current.forEach((c, i) => { if (!c) return; const q = pts[i - (12 - pts.length)]; if (q) { c.setAttribute('cx', String(q.x)); c.setAttribute('cy', String(q.y)); c.setAttribute('opacity', String(i / 12 * .75)); c.setAttribute('r', String(1.2 + i * .3)) } else c.setAttribute('opacity', '0') })
     if (traj.current) {
       if (st.phase === 'drawing' && pull >= MIN_PULL) {
         const L = launch(st.nx, st.ny); const a0 = Math.atan2(L.avy, L.avx)
@@ -173,6 +178,8 @@ export default function BowScene({ onHit, buzz, onGesture }: { onHit: () => void
       <path ref={limbBot} fill="none" stroke="url(#bowWood)" strokeWidth="6.5" strokeLinecap="round" />
       <rect x={GRIP.x - 4} y={GRIP.y - 14} width="8" height="28" rx="4" fill="#8f4f7e" stroke="#f6d3e6" strokeOpacity=".5" />
       <path ref={string} fill="none" stroke="#fbe6f1" strokeWidth="1.6" strokeLinejoin="round" />
+      {Array.from({ length: 12 }, (_, i) => <circle key={i} ref={el => { trail.current[i] = el }} r="2" fill="#ffd36e" opacity="0" />)}
+      {hit && <><circle className="bow-shock" cx={HEART.x} cy={HEART.y} r="30" /><circle className="bow-shock two" cx={HEART.x} cy={HEART.y} r="30" /></>}
       <g ref={arrow} className="bow-arrow">
         <line x1="-2" y1="0" x2={ARROW_LEN - 8} y2="0" stroke="#f7e0ef" strokeWidth="2.6" strokeLinecap="round" />
         <path d={`M${ARROW_LEN - 10} -6 L${ARROW_LEN + 6} 0 L${ARROW_LEN - 10} 6Z`} fill="#ffe8f3" stroke="#d58cb8" strokeWidth="1" strokeLinejoin="round" />
