@@ -13,6 +13,11 @@ const STYLES: Record<string, Cfg> = {
   'heart-cake': { sponge: ['#d9558c', '#ffb6d2'], cream: '#fff0f6', frost: '#ffc6dc', frost2: '#ff8fba', deco: 'hearts', heart: true },
   tiered: { sponge: ['#eba3c1', '#fff0f5'], cream: '#ffffff', frost: '#fff5f8', frost2: '#f5b5cd', deco: 'pearls', tiered: true },
   blueberry: { sponge: ['#5e76c8', '#c9d5ff'], cream: '#f4f7ff', frost: '#dfe7ff', frost2: '#9db3f5', deco: 'blueberries' },
+  matcha: { sponge: ['#6d9a52', '#c9e6a8'], cream: '#f6fff0', frost: '#dff0cc', frost2: '#a9cf86', deco: 'pearls' },
+  lemon: { sponge: ['#e8c33c', '#fff3a8'], cream: '#fffde8', frost: '#fff6b8', frost2: '#f2d65c', deco: 'gold' },
+  rainbow: { sponge: ['#8f6bff', '#ffb3d9'], cream: '#fff7ff', frost: '#e9dcff', frost2: '#ff9ccc', deco: 'hearts' },
+  galaxy: { sponge: ['#2b2f7a', '#7a6cf0'], cream: '#d8d2ff', frost: '#3a3a96', frost2: '#8c7dff', deco: 'pearls' },
+  caramel: { sponge: ['#b9762f', '#f0c27a'], cream: '#fff0d6', frost: '#e2a65a', frost2: '#8a5524', deco: 'choco' },
   floral: { sponge: ['#eba7c2', '#fff2e6'], cream: '#fffaf2', frost: '#ffe9ef', frost2: '#f4b5ca', deco: 'flowers' },
 }
 const CAPTIONS = ['Warming up the cake machine…', 'Conveyor brings the plate…', 'Baking the first sponge…', 'Spreading cream, stacking layer two…', 'Spreading cream, stacking layer three…', 'Coating with frosting…', 'Piping the rosettes…', 'Adding the decorations…', 'Placing the candle…', 'Lighting the flame — make a wish ✨']
@@ -96,6 +101,8 @@ export default function CakeAssembly({ style = 'strawberry', wished, onWish, buz
     } catch { setMicOn(false) }
   }
   return <div className={`cake-assembly ${blowing ? 'is-blowing' : ''}`} style={{ ['--blow' as string]: level } as CSSProperties}>
+
+    {ready && !wished && <div className="cake-fx" aria-hidden="true">{Array.from({ length: 28 }, (_, i) => <i key={i} style={{ left: `${(i * 37) % 100}%`, animationDelay: `${(i % 9) * .35}s`, background: [cfg.frost2, cfg.sponge[1], '#ffd36e', '#ffffff'][i % 4] }} />)}</div>}
     <button type="button" className={`cake-stage-btn ${ready ? 'ready' : ''} ${wished ? 'wished' : ''}`} onClick={blow} disabled={!ready || wished || blowing} aria-label={ready ? 'Tap the candle to make a wish' : 'The cake is being assembled'}>
       <svg viewBox="0 0 320 290" className="cake-svg" role="img" aria-label="A birthday cake being assembled by a machine">
         <defs>
