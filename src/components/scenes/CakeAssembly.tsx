@@ -49,8 +49,9 @@ function DecoShape({ type, x, y, i }: { type: Deco; x: number; y: number; i: num
   }
 }
 
-export default function CakeAssembly({ style = 'strawberry', wished, onWish, buzz }: { style?: string; wished: boolean; onWish: () => void; buzz?: (p: number | number[]) => void }) {
+export default function CakeAssembly({ style = 'strawberry', age, wished, onWish, buzz }: { style?: string; age?: number; wished: boolean; onWish: () => void; buzz?: (p: number | number[]) => void }) {
   const cfg = STYLES[style] || STYLES.strawberry
+  const digits = age && age >= 1 && age <= 99 ? String(Math.round(age)).split('') : null
   const uid = useId().replace(/:/g, '')
   const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const [stage, setStage] = useState(reduced ? 9 : 0)
@@ -146,11 +147,19 @@ export default function CakeAssembly({ style = 'strawberry', wished, onWish, buz
         {show(7) && rimPts.filter((_, i) => i % 2 === 0).map((p, i) => <motion.g key={`d${i}`} initial={{ scale: 0, y: -26, opacity: 0 }} animate={{ scale: 1, y: -7, opacity: 1 }} transition={{ delay: i * .14, type: 'spring', stiffness: 220, damping: 12 }} style={{ transformBox: 'fill-box', transformOrigin: '50% 100%' }}><DecoShape type={cfg.deco} x={p.x} y={p.y} i={i} /></motion.g>)}
         {show(7) && layers.slice(0, 2).map((l, i) => [0, 1, 2, 3].map(k => <motion.g key={`s${i}${k}`} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: .5 + k * .1 + i * .2, type: 'spring' }} style={{ transformBox: 'fill-box', transformOrigin: 'center' }}><DecoShape type={cfg.deco} x={CX - l.w / 2 + 28 + k * ((l.w - 56) / 3)} y={l.top + 22} i={k + i} /></motion.g>))}
         {/* candle */}
-        {show(8) && <motion.g key="candle" initial={{ y: 34, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', stiffness: 120, damping: 13 }}>
+        {show(8) && !digits && <motion.g key="candle" initial={{ y: 34, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', stiffness: 120, damping: 13 }}>
           <rect x={CX - 5} y={topY - 46} width="10" height="46" rx="3" fill={`url(#st-${uid})`} stroke="#fff" strokeOpacity=".6" /><rect x={CX - 5} y={topY - 46} width="10" height="5" rx="2.5" fill="#fff" opacity=".7" /><path d={`M${CX} ${topY - 46} L${CX} ${topY - 51}`} stroke="#3a2a30" strokeWidth="1.6" />
         </motion.g>}
-        {show(9) && !wished && <motion.g className={`cake-flame ${blowing ? 'blowing' : ''}`} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 10 }} style={{ transformBox: 'fill-box', transformOrigin: '50% 100%' }}>
+        {show(9) && !wished && !digits && <motion.g className={`cake-flame ${blowing ? 'blowing' : ''}`} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 10 }} style={{ transformBox: 'fill-box', transformOrigin: '50% 100%' }}>
           <circle cx={CX} cy={topY - 64} r="34" fill={`url(#glow-${uid})`} className="flame-glow" /><ellipse cx={CX} cy={topY - 64} rx="14" ry="18" fill="#ffd27a" opacity=".22" /><path d={`M${CX} ${topY - 79} C${CX + 8} ${topY - 68} ${CX + 7} ${topY - 56} ${CX} ${topY - 52} C${CX - 7} ${topY - 56} ${CX - 8} ${topY - 68} ${CX} ${topY - 79}Z`} fill="#ffb93d" /><path d={`M${CX} ${topY - 71} C${CX + 4} ${topY - 65} ${CX + 3} ${topY - 58} ${CX} ${topY - 55} C${CX - 3} ${topY - 58} ${CX - 4} ${topY - 65} ${CX} ${topY - 71}Z`} fill="#fff4c2" />
+        </motion.g>}
+        {digits && show(8) && <motion.g key="numcandles" initial={{ y: 34, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', stiffness: 120, damping: 13 }}>
+          {digits.map((dg, i) => { const nx = CX + (i - (digits.length - 1) / 2) * 42; return <g key={i}>
+            <text x={nx} y={topY - 2} textAnchor="middle" fontSize="64" fontWeight="800" fontFamily="Fredoka, sans-serif" fill={`url(#st-${uid})`} stroke="#fff" strokeOpacity=".75" strokeWidth="2.6" paintOrder="stroke">{dg}</text>
+            <path d={`M${nx} ${topY - 56} L${nx} ${topY - 62}`} stroke="#3a2a30" strokeWidth="1.6" />
+            {show(9) && !wished && <motion.g className={`cake-flame ${blowing ? 'blowing' : ''}`} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 10, delay: i * .12 }} style={{ transformBox: 'fill-box', transformOrigin: '50% 100%' }}>
+              <circle cx={nx} cy={topY - 72} r="24" fill={`url(#glow-${uid})`} className="flame-glow" /><path d={`M${nx} ${topY - 86} C${nx + 6} ${topY - 77} ${nx + 5} ${topY - 67} ${nx} ${topY - 63} C${nx - 5} ${topY - 67} ${nx - 6} ${topY - 77} ${nx} ${topY - 86}Z`} fill="#ffb93d" /><path d={`M${nx} ${topY - 80} C${nx + 3} ${topY - 75} ${nx + 2.5} ${topY - 69} ${nx} ${topY - 66} C${nx - 2.5} ${topY - 69} ${nx - 3} ${topY - 75} ${nx} ${topY - 80}Z`} fill="#fff3b8" /></motion.g>}
+          </g> })}
         </motion.g>}
         {wished && <g className="cake-smoke"><path d={`M${CX} ${topY - 52} q10 -12 0 -22 q-10 -10 0 -22`} fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" opacity=".5" /><path d={`M${CX} ${topY - 52} q-12 -10 -2 -24 q8 -10 -2 -20`} fill="none" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" opacity=".4" /><path d={`M${CX} ${topY - 52} q-6 -10 0 -18 q6 -8 0 -16`} fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity=".7" /></g>}
         {/* carriage + nozzle (drawn last so it sits in front of the gantry) */}
