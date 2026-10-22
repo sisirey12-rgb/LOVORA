@@ -45,6 +45,11 @@ export const hostedBirthdayVideo = '/media/birthday-videos/birthday-cat.mp4'
 export const hostedPopSound = '/media/effects/balloon-pop.mp3'
 
 export const cakeStyles = [
+  { id: 'matcha', title: 'Matcha garden', emoji: '🍵' },
+  { id: 'lemon', title: 'Lemon sunshine', emoji: '🍋' },
+  { id: 'rainbow', title: 'Rainbow dream', emoji: '🌈' },
+  { id: 'galaxy', title: 'Galaxy night', emoji: '🌌' },
+  { id: 'caramel', title: 'Salted caramel', emoji: '🍮' },
   { id: 'strawberry', title: 'Strawberry blush', emoji: '🍓' },
   { id: 'chocolate', title: 'Chocolate ganache', emoji: '🍫' },
   { id: 'vanilla-gold', title: 'Vanilla gold', emoji: '✨' },
